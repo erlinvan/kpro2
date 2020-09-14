@@ -12,3 +12,7 @@
 ## Setup
 ### SDK
 In *makefile* set the variable `SDK_ROOT` to the path to the SDK
+
+## Usage
+`make`
+`make flash`
