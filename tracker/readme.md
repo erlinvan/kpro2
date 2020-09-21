@@ -9,6 +9,10 @@
 #### MacOS X installation
 `brew install osx-cross/arm/arm-gcc-bin`
 
+### nrfjprog
+#### Download
+[https://www.nordicsemi.com/Software-and-tools/Development-Tools/nRF-Command-Line-Tools/Download](https://www.nordicsemi.com/Software-and-tools/Development-Tools/nRF-Command-Line-Tools/Download)
+
 ## Setup
 ### SDK
 In *makefile* set the variable `SDK_ROOT` to the path to the SDK
