@@ -1,0 +1,794 @@
+[
+    {
+        "reported": {
+            "battery_percentage": 75,
+            "battery_voltage": 3913,
+            "GPS": {
+                "GPGGA": {
+                    "alt_units": "M",
+                    "altitude": "39.34",
+                    "gps_timestamp": "154301.41",
+                    "hdop": "3.80",
+                    "latitude": "6326.54379",
+                    "latitude_direction": "N",
+                    "longitude": "01025.69353",
+                    "longitude_directon": "E",
+                    "n_sats": "05",
+                    "quality": "1",
+                    "und_units": "",
+                    "undulation": "0"
+                },
+                "GPGLL": {
+                    "data_status": "A",
+                    "gps_timestamp": "154301.41",
+                    "latitude": "6326.54379",
+                    "latitude_direction": "N",
+                    "longitude": "01025.69353",
+                    "longitude_directon": "E",
+                    "mode_ind": "A"
+                },
+                "GPGSA": {
+                    "hdop": "3.80",
+                    "mode_123": "3",
+                    "mode_ma": "A",
+                    "pdop": "5.60",
+                    "vdop": "4.12"
+                },
+                "GPGSV": {
+                    "sat_data": [
+                        {
+                            "azimuth": "109",
+                            "elev": "43",
+                            "prn": "22",
+                            "SNR": "31"
+                        },
+                        {
+                            "azimuth": "000",
+                            "elev": "00",
+                            "prn": "1",
+                            "SNR": "22"
+                        },
+                        {
+                            "azimuth": "059",
+                            "elev": "31",
+                            "prn": "31",
+                            "SNR": "31"
+                        },
+                        {
+                            "azimuth": "186",
+                            "elev": "50",
+                            "prn": "4",
+                            "SNR": "30"
+                        },
+                        {
+                            "azimuth": "212",
+                            "elev": "19",
+                            "prn": "9",
+                            "SNR": "31"
+                        }
+                    ],
+                    "sats": "5"
+                },
+                "GPRMC": {
+                    "date": "110820",
+                    "gps_timestamp": "154301.41",
+                    "latitude": "6326.54379",
+                    "latitude_direction": "N",
+                    "longitude": "01025.69353",
+                    "longitude_directon": "E",
+                    "mag_var": "",
+                    "mode_ind": "A",
+                    "pos_status": "A",
+                    "speed_kn": "0.11",
+                    "track_true": "0.00",
+                    "var_dir": ""
+                },
+                "gps_datetime": "2020-08-11 15:43:01",
+                "NMEA": [
+                    "$GPGGA,154301.41,6326.54379,N,01025.69353,E,1,05,3.80,39.34,M,0,,*16\r\n",
+                    "$GPGLL,6326.54379,N,01025.69353,E,154301.41,A,A*6F\r\n",
+                    "$GPGSA,A,3,04,09,22,31,,,,,,,,,5.60,3.80,4.12,1*1F\r\n",
+                    "$GPGSV,2,1,5,22,43,109,31,1,00,000,22,31,31,059,31,4,50,186,30,1*5D\r\n",
+                    "$GPGSV,2,2,5,9,19,212,31,1*53\r\n",
+                    "$GPRMC,154301.41,A,6326.54379,N,01025.69353,E,0.11,0.00,110820,,,A,V*28\r\n"
+                ],
+                "speed_kmh": 0.2035000000000000097699626167,
+                "time_since_last_fix": 13,
+                "time_spent_to_get_fix": 131,
+                "timed_out": false
+            },
+            "signal_strength": -99,
+            "temperature": 26,
+            "beacon_data": [
+                {
+                    "timestamp": "2020-08-11T17:40:14.837",
+                    "temperature": "20",
+                    "humidity": "40",
+                    "beacon_id": "123"
+                },
+                {
+                    "timestamp": "2020-08-11T17:41:14.837",
+                    "temperature": "24",
+                    "humidity": "44",
+                    "beacon_id": "123"
+                },
+                {
+                    "timestamp": "2020-08-11T17:42:14.837",
+                    "temperature": "24",
+                    "humidity": "39",
+                    "beacon_id": "124"
+                },
+                {
+                    "timestamp": "2020-08-11T17:43:14.837",
+                    "temperature": "20",
+                    "humidity": "39",
+                    "beacon_id": ""124"
+                }
+            ]
+
+        }
+    },
+    {
+        "reported": {
+            "battery_percentage": 75,
+            "battery_voltage": 3915,
+            "GPS": {
+                "GPGGA": {
+                    "alt_units": "M",
+                    "altitude": "54.53",
+                    "gps_timestamp": "154454.74",
+                    "hdop": "3.52",
+                    "latitude": "6326.43217",
+                    "latitude_direction": "N",
+                    "longitude": "01025.49409",
+                    "longitude_directon": "E",
+                    "n_sats": "07",
+                    "quality": "1",
+                    "und_units": "",
+                    "undulation": "0"
+                },
+                "GPGLL": {
+                    "data_status": "A",
+                    "gps_timestamp": "154454.74",
+                    "latitude": "6326.43217",
+                    "latitude_direction": "N",
+                    "longitude": "01025.49409",
+                    "longitude_directon": "E",
+                    "mode_ind": "A"
+                },
+                "GPGSA": {
+                    "hdop": "3.52",
+                    "mode_123": "3",
+                    "mode_ma": "A",
+                    "pdop": "5.33",
+                    "vdop": "4.01"
+                },
+                "GPGSV": {
+                    "sat_data": [
+                        {
+                            "azimuth": "000",
+                            "elev": "00",
+                            "prn": "19",
+                            "SNR": "37"
+                        },
+                        {
+                            "azimuth": "186",
+                            "elev": "51",
+                            "prn": "4",
+                            "SNR": "34"
+                        },
+                        {
+                            "azimuth": "109",
+                            "elev": "42",
+                            "prn": "22",
+                            "SNR": "40"
+                        },
+                        {
+                            "azimuth": "058",
+                            "elev": "31",
+                            "prn": "31",
+                            "SNR": "31"
+                        },
+                        {
+                            "azimuth": "000",
+                            "elev": "00",
+                            "prn": "3",
+                            "SNR": "24"
+                        },
+                        {
+                            "azimuth": "212",
+                            "elev": "20",
+                            "prn": "9",
+                            "SNR": "30"
+                        },
+                        {
+                            "azimuth": "000",
+                            "elev": "00",
+                            "prn": "12",
+                            "SNR": "27"
+                        }
+                    ],
+                    "sats": "7"
+                },
+                "GPRMC": {
+                    "date": "110820",
+                    "gps_timestamp": "154454.74",
+                    "latitude": "6326.43217",
+                    "latitude_direction": "N",
+                    "longitude": "01025.49409",
+                    "longitude_directon": "E",
+                    "mag_var": "",
+                    "mode_ind": "A",
+                    "pos_status": "A",
+                    "speed_kn": "11.75",
+                    "track_true": "206.97",
+                    "var_dir": ""
+                },
+                "gps_datetime": "2020-08-11 15:44:54",
+                "NMEA": [
+                    "$GPGGA,154454.74,6326.43217,N,01025.49409,E,1,07,3.52,54.53,M,0,,*15\r\n",
+                    "$GPGLL,6326.43217,N,01025.49409,E,154454.74,A,A*6B\r\n",
+                    "$GPGSA,A,3,04,09,22,31,,,,,,,,,5.33,3.52,4.01,1*14\r\n",
+                    "$GPGSV,2,1,7,19,00,000,37,4,51,186,34,22,42,109,40,31,31,058,31,1*61\r\n",
+                    "$GPGSV,2,2,7,3,00,000,24,9,20,212,30,12,00,000,27,1*69\r\n",
+                    "$GPRMC,154454.74,A,6326.43217,N,01025.49409,E,11.75,206.97,110820,,,A,V*14\r\n"
+                ],
+                "speed_kmh": 21.73750000000000104360964315,
+                "time_since_last_fix": 38,
+                "time_spent_to_get_fix": 48,
+                "timed_out": false
+            },
+            "signal_strength": -87,
+            "temperature": 26,
+            "beacon_data": [
+                {
+                    "timestamp": "2020-08-11T17:45:33.725",
+                    "temperature": "20",
+                    "humidity": "40",
+                    "beacon_id": "389"
+                }
+            ]
+        }
+    },
+    {
+        "reported": {
+            "battery_percentage": 75,
+            "battery_voltage": 3915,
+            "GPS": {
+                "GPGGA": {
+                    "alt_units": "M",
+                    "altitude": "81.50",
+                    "gps_timestamp": "154715.24",
+                    "hdop": "3.23",
+                    "latitude": "6326.17745",
+                    "latitude_direction": "N",
+                    "longitude": "01024.88786",
+                    "longitude_directon": "E",
+                    "n_sats": "04",
+                    "quality": "1",
+                    "und_units": "",
+                    "undulation": "0"
+                },
+                "GPGLL": {
+                    "data_status": "A",
+                    "gps_timestamp": "154715.24",
+                    "latitude": "6326.17745",
+                    "latitude_direction": "N",
+                    "longitude": "01024.88786",
+                    "longitude_directon": "E",
+                    "mode_ind": "A"
+                },
+                "GPGSA": {
+                    "hdop": "3.23",
+                    "mode_123": "3",
+                    "mode_ma": "A",
+                    "pdop": "5.05",
+                    "vdop": "3.89"
+                },
+                "GPGSV": {
+                    "sat_data": [
+                        {
+                            "azimuth": "185",
+                            "elev": "52",
+                            "prn": "4",
+                            "SNR": "32"
+                        },
+                        {
+                            "azimuth": "212",
+                            "elev": "21",
+                            "prn": "9",
+                            "SNR": "29"
+                        },
+                        {
+                            "azimuth": "109",
+                            "elev": "41",
+                            "prn": "22",
+                            "SNR": "28"
+                        },
+                        {
+                            "azimuth": "057",
+                            "elev": "31",
+                            "prn": "31",
+                            "SNR": "27"
+                        }
+                    ],
+                    "sats": "4"
+                },
+                "GPRMC": {
+                    "date": "110820",
+                    "gps_timestamp": "154715.24",
+                    "latitude": "6326.17745",
+                    "latitude_direction": "N",
+                    "longitude": "01024.88786",
+                    "longitude_directon": "E",
+                    "mag_var": "",
+                    "mode_ind": "A",
+                    "pos_status": "A",
+                    "speed_kn": "5.78",
+                    "track_true": "213.85",
+                    "var_dir": ""
+                },
+                "gps_datetime": "2020-08-11 15:47:15",
+                "NMEA": [
+                    "$GPGGA,154715.24,6326.17745,N,01024.88786,E,1,04,3.23,81.50,M,0,,*13\r\n",
+                    "$GPGLL,6326.17745,N,01024.88786,E,154715.24,A,A*63\r\n",
+                    "$GPGSA,A,3,04,09,22,31,,,,,,,,,5.05,3.23,3.89,1*10\r\n",
+                    "$GPGSV,1,1,4,4,52,185,32,9,21,212,29,22,41,109,28,31,31,057,27,1*5E\r\n",
+                    "$GPRMC,154715.24,A,6326.17745,N,01024.88786,E,5.78,213.85,110820,,,A,V*23\r\n"
+                ],
+                "speed_kmh": 10.69300000000000051336712659,
+                "time_since_last_fix": 7,
+                "time_spent_to_get_fix": 46,
+                "timed_out": false
+            },
+            "signal_strength": -88,
+            "temperature": 25,
+            "beacon_data": [
+                {
+                    "timestamp": "2020-08-11T17:47:33.725",
+                    "temperature": "16",
+                    "humidity": "50",
+                    "beacon_id": "789"
+                }
+            ]
+        }
+    },
+    {
+        "reported": {
+            "battery_percentage": 75,
+            "battery_voltage": 3916,
+            "GPS": {
+                "GPGGA": {
+                    "alt_units": "M",
+                    "altitude": "63.30",
+                    "gps_timestamp": "154837.64",
+                    "hdop": "3.08",
+                    "latitude": "6326.12848",
+                    "latitude_direction": "N",
+                    "longitude": "01024.45053",
+                    "longitude_directon": "E",
+                    "n_sats": "05",
+                    "quality": "1",
+                    "und_units": "",
+                    "undulation": "0"
+                },
+                "GPGLL": {
+                    "data_status": "A",
+                    "gps_timestamp": "154837.64",
+                    "latitude": "6326.12848",
+                    "latitude_direction": "N",
+                    "longitude": "01024.45053",
+                    "longitude_directon": "E",
+                    "mode_ind": "A"
+                },
+                "GPGSA": {
+                    "hdop": "3.08",
+                    "mode_123": "3",
+                    "mode_ma": "A",
+                    "pdop": "4.91",
+                    "vdop": "3.83"
+                },
+                "GPGSV": {
+                    "sat_data": [
+                        {
+                            "azimuth": "185",
+                            "elev": "53",
+                            "prn": "4",
+                            "SNR": "39"
+                        },
+                        {
+                            "azimuth": "109",
+                            "elev": "40",
+                            "prn": "22",
+                            "SNR": "25"
+                        },
+                        {
+                            "azimuth": "212",
+                            "elev": "21",
+                            "prn": "9",
+                            "SNR": "27"
+                        },
+                        {
+                            "azimuth": "056",
+                            "elev": "31",
+                            "prn": "31",
+                            "SNR": "32"
+                        },
+                        {
+                            "azimuth": "000",
+                            "elev": "00",
+                            "prn": "3",
+                            "SNR": "25"
+                        }
+                    ],
+                    "sats": "5"
+                },
+                "GPRMC": {
+                    "date": "110820",
+                    "gps_timestamp": "154837.64",
+                    "latitude": "6326.12848",
+                    "latitude_direction": "N",
+                    "longitude": "01024.45053",
+                    "longitude_directon": "E",
+                    "mag_var": "",
+                    "mode_ind": "A",
+                    "pos_status": "A",
+                    "speed_kn": "9.22",
+                    "track_true": "267.10",
+                    "var_dir": ""
+                },
+                "gps_datetime": "2020-08-11 15:48:37",
+                "NMEA": [
+                    "$GPGGA,154837.64,6326.12848,N,01024.45053,E,1,05,3.08,63.30,M,0,,*13\r\n",
+                    "$GPGLL,6326.12848,N,01024.45053,E,154837.64,A,A*61\r\n",
+                    "$GPGSA,A,3,04,09,22,31,,,,,,,,,4.91,3.08,3.83,1*1F\r\n",
+                    "$GPGSV,2,1,5,4,53,185,39,22,40,109,25,9,21,212,27,31,31,056,32,1*51\r\n",
+                    "$GPGSV,2,2,5,3,00,000,25,1*55\r\n",
+                    "$GPRMC,154837.64,A,6326.12848,N,01024.45053,E,9.22,267.10,110820,,,A,V*2D\r\n"
+                ],
+                "speed_kmh": 17.05700000000000081890050296,
+                "time_since_last_fix": 9,
+                "time_spent_to_get_fix": 21,
+                "timed_out": false
+            },
+            "signal_strength": -86,
+            "temperature": 24,
+            "beacon_data": [
+                {
+                    "timestamp": "2020-08-11T17:48:33.725",
+                    "temperature": "25",
+                    "humidity": "46",
+                    "beacon_id": "786"
+                }
+            ]
+        }
+    },
+    {
+        "reported": {
+            "battery_percentage": 76,
+            "battery_voltage": 3919,
+            "GPS": {
+                "GPGGA": {
+                    "alt_units": "M",
+                    "altitude": "48.35",
+                    "gps_timestamp": "154949.97",
+                    "hdop": "2.96",
+                    "latitude": "6326.14950",
+                    "latitude_direction": "N",
+                    "longitude": "01024.05293",
+                    "longitude_directon": "E",
+                    "n_sats": "04",
+                    "quality": "1",
+                    "und_units": "",
+                    "undulation": "0"
+                },
+                "GPGLL": {
+                    "data_status": "A",
+                    "gps_timestamp": "154949.97",
+                    "latitude": "6326.14950",
+                    "latitude_direction": "N",
+                    "longitude": "01024.05293",
+                    "longitude_directon": "E",
+                    "mode_ind": "A"
+                },
+                "GPGSA": {
+                    "hdop": "2.96",
+                    "mode_123": "3",
+                    "mode_ma": "A",
+                    "pdop": "4.80",
+                    "vdop": "3.78"
+                },
+                "GPGSV": {
+                    "sat_data": [
+                        {
+                            "azimuth": "184",
+                            "elev": "53",
+                            "prn": "4",
+                            "SNR": "38"
+                        },
+                        {
+                            "azimuth": "056",
+                            "elev": "31",
+                            "prn": "31",
+                            "SNR": "30"
+                        },
+                        {
+                            "azimuth": "109",
+                            "elev": "40",
+                            "prn": "22",
+                            "SNR": "29"
+                        },
+                        {
+                            "azimuth": "212",
+                            "elev": "22",
+                            "prn": "9",
+                            "SNR": "26"
+                        }
+                    ],
+                    "sats": "4"
+                },
+                "GPRMC": {
+                    "date": "110820",
+                    "gps_timestamp": "154949.97",
+                    "latitude": "6326.14950",
+                    "latitude_direction": "N",
+                    "longitude": "01024.05293",
+                    "longitude_directon": "E",
+                    "mag_var": "",
+                    "mode_ind": "A",
+                    "pos_status": "A",
+                    "speed_kn": "8.78",
+                    "track_true": "258.07",
+                    "var_dir": ""
+                },
+                "gps_datetime": "2020-08-11 15:49:49",
+                "NMEA": [
+                    "$GPGGA,154949.97,6326.14950,N,01024.05293,E,1,04,2.96,48.35,M,0,,*18\r\n",
+                    "$GPGLL,6326.14950,N,01024.05293,E,154949.97,A,A*61\r\n",
+                    "$GPGSA,A,3,04,09,22,31,,,,,,,,,4.80,2.96,3.78,1*1D\r\n",
+                    "$GPGSV,1,1,4,4,53,184,38,31,31,056,30,22,40,109,29,9,22,212,26,1*5F\r\n",
+                    "$GPRMC,154949.97,A,6326.14950,N,01024.05293,E,8.78,258.07,110820,,,A,V*29\r\n"
+                ],
+                "speed_kmh": 16.2430000000000007798206525,
+                "time_since_last_fix": 7,
+                "time_spent_to_get_fix": 9,
+                "timed_out": false
+            },
+            "signal_strength": -79,
+            "temperature": 23,
+            "beacon_data": [
+                {
+                    "timestamp": "2020-08-11T17:49:33.725",
+                    "temperature": "21",
+                    "humidity": "39",
+                    "beacon_id": "779"
+                }
+            ]
+        }
+    },
+        {
+            "reported": {
+                "battery_percentage": 76,
+                "battery_voltage": 3918,
+                "GPS": {
+                    "GPGGA": {
+                        "alt_units": "M",
+                        "altitude": "58.31",
+                        "gps_timestamp": "155129.16",
+                        "hdop": "2.81",
+                        "latitude": "6326.07147",
+                        "latitude_direction": "N",
+                        "longitude": "01023.67518",
+                        "longitude_directon": "E",
+                        "n_sats": "04",
+                        "quality": "1",
+                        "und_units": "",
+                        "undulation": "0"
+                    },
+                    "GPGLL": {
+                        "data_status": "A",
+                        "gps_timestamp": "155129.16",
+                        "latitude": "6326.07147",
+                        "latitude_direction": "N",
+                        "longitude": "01023.67518",
+                        "longitude_directon": "E",
+                        "mode_ind": "A"
+                    },
+                    "GPGSA": {
+                        "hdop": "2.81",
+                        "mode_123": "3",
+                        "mode_ma": "A",
+                        "pdop": "4.67",
+                        "vdop": "3.72"
+                    },
+                    "GPGSV": {
+                        "sat_data": [
+                            {
+                                "azimuth": "110",
+                                "elev": "39",
+                                "prn": "22",
+                                "SNR": "29"
+                            },
+                            {
+                                "azimuth": "055",
+                                "elev": "31",
+                                "prn": "31",
+                                "SNR": "23"
+                            },
+                            {
+                                "azimuth": "184",
+                                "elev": "54",
+                                "prn": "4",
+                                "SNR": "36"
+                            },
+                            {
+                                "azimuth": "212",
+                                "elev": "23",
+                                "prn": "9",
+                                "SNR": "28"
+                            }
+                        ],
+                        "sats": "4"
+                    },
+                    "GPRMC": {
+                        "date": "110820",
+                        "gps_timestamp": "155129.16",
+                        "latitude": "6326.07147",
+                        "latitude_direction": "N",
+                        "longitude": "01023.67518",
+                        "longitude_directon": "E",
+                        "mag_var": "",
+                        "mode_ind": "A",
+                        "pos_status": "A",
+                        "speed_kn": "9.95",
+                        "track_true": "229.53",
+                        "var_dir": ""
+                    },
+                    "gps_datetime": "2020-08-11 15:51:29",
+                    "NMEA": [
+                        "$GPGGA,155129.16,6326.07147,N,01023.67518,E,1,04,2.81,58.31,M,0,,*16\r\n",
+                        "$GPGLL,6326.07147,N,01023.67518,E,155129.16,A,A*6C\r\n",
+                        "$GPGSA,A,3,04,09,22,31,,,,,,,,,4.67,2.81,3.72,1*18\r\n",
+                        "$GPGSV,1,1,4,22,39,110,29,31,31,055,23,4,54,184,36,9,23,212,28,1*5E\r\n",
+                        "$GPRMC,155129.16,A,6326.07147,N,01023.67518,E,9.95,229.53,110820,,,A,V*21\r\n"
+                    ],
+                    "speed_kmh": 18.4075000000000008837375276,
+                    "time_since_last_fix": 7,
+                    "time_spent_to_get_fix": 38,
+                    "timed_out": false
+                },
+                "signal_strength": -88,
+                "temperature": 23,
+                "beacon_data": [
+                    {
+                        "timestamp": "2020-08-11T17:51:33.725",
+                        "temperature": "23",
+                        "humidity": "50",
+                        "beacon_id": "769"
+                    }
+                ]
+            }
+        },
+        {
+            "reported": {
+                "battery_percentage": 75,
+                "battery_voltage": 3916,
+                "GPS": {
+                    "GPGGA": {
+                        "alt_units": "M",
+                        "altitude": "61.48",
+                        "gps_timestamp": "155243.36",
+                        "hdop": "2.72",
+                        "latitude": "6325.97586",
+                        "latitude_direction": "N",
+                        "longitude": "01023.41307",
+                        "longitude_directon": "E",
+                        "n_sats": "07",
+                        "quality": "1",
+                        "und_units": "",
+                        "undulation": "0"
+                    },
+                    "GPGLL": {
+                        "data_status": "A",
+                        "gps_timestamp": "155243.36",
+                        "latitude": "6325.97586",
+                        "latitude_direction": "N",
+                        "longitude": "01023.41307",
+                        "longitude_directon": "E",
+                        "mode_ind": "A"
+                    },
+                    "GPGSA": {
+                        "hdop": "2.72",
+                        "mode_123": "3",
+                        "mode_ma": "A",
+                        "pdop": "4.57",
+                        "vdop": "3.68"
+                    },
+                    "GPGSV": {
+                        "sat_data": [
+                            {
+                                "azimuth": "183",
+                                "elev": "55",
+                                "prn": "4",
+                                "SNR": "24"
+                            },
+                            {
+                                "azimuth": "054",
+                                "elev": "31",
+                                "prn": "31",
+                                "SNR": "28"
+                            },
+                            {
+                                "azimuth": "110",
+                                "elev": "38",
+                                "prn": "22",
+                                "SNR": "25"
+                            },
+                            {
+                                "azimuth": "213",
+                                "elev": "23",
+                                "prn": "9",
+                                "SNR": "25"
+                            },
+                            {
+                                "azimuth": "000",
+                                "elev": "00",
+                                "prn": "13",
+                                "SNR": "24"
+                            },
+                            {
+                                "azimuth": "000",
+                                "elev": "00",
+                                "prn": "28",
+                                "SNR": "24"
+                            },
+                            {
+                                "azimuth": "000",
+                                "elev": "00",
+                                "prn": "3",
+                                "SNR": "33"
+                            }
+                        ],
+                        "sats": "7"
+                    },
+                    "GPRMC": {
+                        "date": "110820",
+                        "gps_timestamp": "155243.36",
+                        "latitude": "6325.97586",
+                        "latitude_direction": "N",
+                        "longitude": "01023.41307",
+                        "longitude_directon": "E",
+                        "mag_var": "",
+                        "mode_ind": "A",
+                        "pos_status": "A",
+                        "speed_kn": "0.32",
+                        "track_true": "229.53",
+                        "var_dir": ""
+                    },
+                    "gps_datetime": "2020-08-11 15:52:43",
+                    "NMEA": [
+                        "$GPGGA,155243.36,6325.97586,N,01023.41307,E,1,07,2.72,61.48,M,0,,*1F\r\n",
+                        "$GPGLL,6325.97586,N,01023.41307,E,155243.36,A,A*6E\r\n",
+                        "$GPGSA,A,3,04,09,22,31,,,,,,,,,4.57,2.72,3.68,1*1C\r\n",
+                        "$GPGSV,2,1,7,4,55,183,24,31,31,054,28,22,38,110,25,9,23,213,25,1*50\r\n",
+                        "$GPGSV,2,2,7,13,00,000,24,28,00,000,24,3,00,000,33,1*58\r\n",
+                        "$GPRMC,155243.36,A,6325.97586,N,01023.41307,E,0.32,229.53,110820,,,A,V*27\r\n"
+                    ],
+                    "speed_kmh": 0.5920000000000000284217094304,
+                    "time_since_last_fix": 7,
+                    "time_spent_to_get_fix": 9,
+                    "timed_out": false
+                },
+                "signal_strength": -85,
+                "temperature": 22,
+                "beacon_data": [
+                    {
+                        "timestamp": "2020-08-11T17:52:33.725",
+                        "temperature": "22",
+                        "humidity": "34",
+                        "beacon_id": "759"
+                    }
+                ]
+            }
+        }
+]
