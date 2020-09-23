@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import AppBar from './AppBar/AppBar'
 import Trackerinfo from './Components/Trackerinfo/Trackerinfo'
 import TrackerTable from './Components/TrackerSearch/SearchAndTableComponent'
-import Login from './Components/Trackerinfo/Login/Login'
+import Login from './Components/Login/Login'
 
 function App() {
     return (
