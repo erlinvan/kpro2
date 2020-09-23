@@ -1,7 +1,7 @@
 import React from 'react'
 import { GridOverlay, DataGrid, ColDef } from '@material-ui/data-grid'
 import LinearProgress from '@material-ui/core/LinearProgress'
-import data from './mockData/data.json'
+
 import { Typography } from '@material-ui/core'
 
 
@@ -22,9 +22,17 @@ function CustomLoadingOverlay() {
     )
 }
 
+// Here as well I am not familiar enough with TS
+// will look into the correct data types later.
+type props = {
+    searchString:any,
+    data: any,
+}
+
+
 // This grid needs to communicate with another page. The current implementation only logs which record has been pressed,
 // it does not actually go to said log.
-const TrackerDataGrid = () => {
+const TrackerDataGrid = ({searchString, data}: props) => {
 
     return (
         <div style={{ height: 400, width: '40%' }}>
