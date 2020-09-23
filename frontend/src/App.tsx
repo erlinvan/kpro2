@@ -3,9 +3,7 @@ import './App.css'
 import {
     BrowserRouter,
     Route,
-    Router,
     Switch,
-    withRouter,
 } from 'react-router-dom'
 import AppBar from './AppBar/AppBar'
 import Trackerinfo from './Components/Trackerinfo/Trackerinfo'
