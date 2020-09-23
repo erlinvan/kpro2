@@ -33,7 +33,7 @@ const Trackerinfo = () => {
                             <Grid item xs={4}>
                                 <CardContent>
                                     <Typography variant="body2" component="h2">
-                                        <b>Max temperature:</b>{' '}
+                                        <b>Max temperature:</b>
                                         {dummy1.maxTemperature}
                                     </Typography>
                                 </CardContent>
@@ -41,7 +41,7 @@ const Trackerinfo = () => {
                             <Grid item xs={4}>
                                 <CardContent>
                                     <Typography variant="body2" component="h2">
-                                        <b>Max humidity:</b>{' '}
+                                        <b>Max humidity:</b>
                                         {dummy1.maxHumidity}
                                     </Typography>
                                 </CardContent>
@@ -58,7 +58,7 @@ const Trackerinfo = () => {
                             <Grid item xs={4}>
                                 <CardContent>
                                     <Typography variant="body2" component="h2">
-                                        <b>Min temperature:</b>{' '}
+                                        <b>Min temperature:</b>
                                         {dummy1.minTemperature}
                                     </Typography>
                                 </CardContent>
@@ -66,7 +66,7 @@ const Trackerinfo = () => {
                             <Grid item xs={4}>
                                 <CardContent>
                                     <Typography variant="body2" component="h2">
-                                        <b>Min humidity:</b>{' '}
+                                        <b>Min humidity:</b>
                                         {dummy1.minHumidity}
                                     </Typography>
                                 </CardContent>
