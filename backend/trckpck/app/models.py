@@ -16,6 +16,9 @@ class Package(models.Model):
                                      choices=COMPANY_CHOICES)
     tracker_id = models.CharField(max_length=200)
 
+    class Meta:
+        unique_together = ('company_owner', 'tracker_id')
+
     def get_package_data(self):
         """Retrieves all records for tracker with id=id"""
         dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')

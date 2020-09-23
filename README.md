@@ -12,15 +12,21 @@ Kundestyrt prosjekt gruppe 2
 * Velg venv du lagde i Python interpreter
 * Dobbeltsjekk at Environment variables er satt til 'trckpck.settings'
 * Åpne requirements.txt, og trykk 'Install requirements'
+```
+(venv)theodorc@mycomputer: python manage.py migrate
+(venv)theodorc@mycomputer: python manage.py initdb
+```
 * Trykk start øverst i høyre hjørne. Applikasjonen din skal nå kjøre på http://127.0.0.1:8000
 
 ## Alternativ for å utvikle lokalt
 * Klon prosjektet
 * åpne mappen i terminalen
-
 ```
 theodorc@mycomputer: virtualenv venv && source venv/bin/activate
 (venv)theodorc@mycomputer: pip install -r requirements_dev.txt
+(venv)theodorc@mycomputer: python manage.py migrate
+(venv)theodorc@mycomputer: python manage.py initdb //initdb populates the
+localdb with some test data
 (venv)theodorc@mycomputer: python manage.py runserver
 ```
 
