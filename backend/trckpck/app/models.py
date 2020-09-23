@@ -28,6 +28,6 @@ class Package(models.Model):
 
 
 class Beacon(models.Model):
-    id = models.CharField(max_length=200)
+    id = models.CharField(max_length=200, primary_key=True)
     description = models.CharField(max_length=200)
 
