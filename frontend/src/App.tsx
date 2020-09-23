@@ -1,10 +1,6 @@
 import React from 'react'
 import './App.css'
-import {
-    BrowserRouter,
-    Route,
-    Switch,
-} from 'react-router-dom'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import AppBar from './AppBar/AppBar'
 import Trackerinfo from './Components/Trackerinfo/Trackerinfo'
 import TrackerTable from './Components/TrackerSearch/SearchAndTableComponent'
@@ -24,7 +20,11 @@ function App() {
                             path="/trackerinfo"
                             component={Trackerinfo}
                         />
-                        <Route exact path="/trackers" component={TrackerTable} />
+                        <Route
+                            exact
+                            path="/trackers"
+                            component={TrackerTable}
+                        />
                         <Route exact path="/login" component={Login} />
                     </Switch>
                 </BrowserRouter>
