@@ -25,3 +25,9 @@ class Package(models.Model):
         )
         items = response.get('Items', [])
         return items
+
+
+class Beacon(models.Model):
+    id = models.CharField(max_length=200)
+    description = models.CharField(max_length=200)
+
