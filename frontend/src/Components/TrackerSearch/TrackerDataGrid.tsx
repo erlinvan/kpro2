@@ -23,16 +23,15 @@ function CustomLoadingOverlay() {
 }
 
 // Here as well I am not familiar enough with TS
-// will look into the correct data types later.
+// will look into the correct data types later. TODO: Change to correct types
 type props = {
-    searchString:any,
     data: any,
 }
 
 
 // This grid needs to communicate with another page. The current implementation only logs which record has been pressed,
 // it does not actually go to said log.
-const TrackerDataGrid = ({searchString, data}: props) => {
+const TrackerDataGrid = ({ data}: props) => {
 
     return (
         <div style={{ height: 400, width: '40%' }}>

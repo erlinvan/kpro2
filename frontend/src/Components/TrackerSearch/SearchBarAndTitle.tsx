@@ -5,11 +5,10 @@ import TextField from '@material-ui/core/TextField'
 // Here I have set the type to any, as I found it challenging to set the
 // type to function TODO: Change to correct data type
 type props = {
-    searchString: any,
     setSearchString: any,
 }
 
-const SearchBarAndTitle = ({ searchString, setSearchString }: props) => {
+const SearchBarAndTitle = ({ setSearchString }: props) => {
     return (
         <TextField variant={'outlined'} style={{ width: '40%' }}
                    id="standard-basic" label="Search for tracker"
@@ -21,5 +20,3 @@ const SearchBarAndTitle = ({ searchString, setSearchString }: props) => {
 }
 
 export default SearchBarAndTitle
-
-
