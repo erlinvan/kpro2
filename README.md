@@ -22,16 +22,23 @@ Kundestyrt prosjekt gruppe 2
 * Klon prosjektet
 * åpne mappen i terminalen
 ```
+theodorc@mycomputer: cd backend
 theodorc@mycomputer: virtualenv venv && source venv/bin/activate
-(venv)theodorc@mycomputer: pip install -r requirements_dev.txt
+(venv)theodorc@mycomputer kpro2/backend: pip install -r requirements_dev.txt
 (venv)theodorc@mycomputer: python manage.py migrate
-(venv)theodorc@mycomputer: python manage.py initdb //initdb populates the
-localdb with some test data
+(venv)theodorc@mycomputer: python manage.py initdb // this populates the localdb with some test data
 (venv)theodorc@mycomputer: python manage.py runserver
 ```
 
 ## Oppsett AWS-integrasjon
-* 'pip install awscli' hvis du ikke har det
-* Kjør 'aws configure'
+```
+theodorc@mycomputer: aws configure
+```
 * Bruk 'Access key ID' og 'Secret access key' som Theodor sendte til deg personlig på Slack
 * Restart applikasjonen
+
+## Hvordan deploye backend
+```
+theodorc@mycomputer kpro2/backend: eb deploy
+theodorc@mycomputer kpro2/backend: eb status // This will report the status of our elastic beanstalk instance
+```
