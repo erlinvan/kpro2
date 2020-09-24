@@ -1,6 +1,7 @@
 import React from 'react'
 import { GridOverlay, DataGrid, ColDef } from '@material-ui/data-grid'
 import LinearProgress from '@material-ui/core/LinearProgress'
+import './SearchAndTableComponent.css'
 
 import { Typography } from '@material-ui/core'
 
@@ -15,7 +16,7 @@ const columns: ColDef[] = [
 function CustomLoadingOverlay() {
     return (
         <GridOverlay>
-            <div style={{ position: 'absolute', top: 0, width: '100%' }}>
+            <div className="gridOverlay">
                 <LinearProgress />
             </div>
         </GridOverlay>
@@ -31,11 +32,11 @@ type props = {
 
 // This grid needs to communicate with another page. The current implementation only logs which record has been pressed,
 // it does not actually go to said log.
-const TrackerDataGrid = ({ data}: props) => {
+const TrackerDataGrid = ({ data }: props) => {
 
     return (
-        <div style={{ height: 400, width: '40%' }}>
-            <Typography variant="h6" style={{ margin: 4 }}> Recently updated trackers</Typography>
+        <div className="trackerDataGrid">
+            <Typography variant="h6" style={typographyStyle}> Recently updated trackers</Typography>
             <DataGrid rows={data} columns={columns} pageSize={5} onRowClick={(params) => {
                 console.log(params.data.id)
             }} components={{
@@ -44,6 +45,11 @@ const TrackerDataGrid = ({ data}: props) => {
             />
         </div>
     )
+}
+
+
+const typographyStyle = {
+    margin: 4,
 }
 
 
