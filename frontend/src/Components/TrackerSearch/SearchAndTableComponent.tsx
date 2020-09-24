@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import SearchBarAndTitle from './SearchBarAndTitle'
 import TrackerDataGrid from './TrackerDataGrid'
 import data from './mockData/data.json'
+import './SearchAndTableComponent.css'
 
 
 const SearchAndTableComponent = () => {
@@ -14,14 +15,7 @@ const SearchAndTableComponent = () => {
     }, [searchString])
 
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '10px',
-            padding: '10px',
-        }}>
+        <div className="searchBarAndTitleStyle">
             <SearchBarAndTitle setSearchString={setSearchString}/>
             <TrackerDataGrid data={filteredData}/>
         </div>
