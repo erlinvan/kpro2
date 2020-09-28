@@ -1,10 +1,8 @@
 import React from 'react'
 import Highcharts from 'highcharts'
-import HighchartsLine from 'highcharts/modules/stock'
 import HighchartsReact from 'highcharts-react-official'
 import { ICharts } from '../../Interfaces/IChart'
 
-HighchartsLine(Highcharts)
 const Charts = (props: ICharts) => {
     const options = {
         chart: {
