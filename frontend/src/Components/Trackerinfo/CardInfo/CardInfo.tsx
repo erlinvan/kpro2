@@ -7,7 +7,6 @@ interface IProps {
 }
 
 const CardInfo = ({ value, parameter }: IProps) => {
-    console.log(value)
     return (
         <Grid item xs={4}>
             <CardContent>
