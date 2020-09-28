@@ -3,6 +3,7 @@ import SearchBarAndTitle from './SearchBarAndTitle'
 import TrackerDataGrid from './TrackerDataGrid'
 import data from './mockData/data.json'
 import './SearchAndTableComponent.css'
+import TrackerMap from './TrackerMap'
 
 
 const SearchAndTableComponent = () => {
@@ -18,6 +19,7 @@ const SearchAndTableComponent = () => {
         <div className="searchBarAndTitleStyle">
             <SearchBarAndTitle setSearchString={setSearchString}/>
             <TrackerDataGrid data={filteredData}/>
+            <TrackerMap/>
         </div>
     )
 }

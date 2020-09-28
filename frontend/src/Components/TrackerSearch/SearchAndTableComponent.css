@@ -17,3 +17,10 @@
     height:400px;
     width: 40%;
 }
+
+.leaflet-container {
+    width: 675px;
+    height: 700px;
+    margin-top: 45px;
+
+}
