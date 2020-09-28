@@ -34,11 +34,11 @@ def list_packages(company_id):
 
     packages_data = []
     for package in packages:
-        packages_data.append((
-            package.id,
-            package.get_latest_timestamp()
-        ))
-    return JsonResponse(packages[0].get_latest_timestamp(), safe=False)
+        packages_data.append({
+            'id': package.id,
+            'timestamp': package.get_latest_timestamp()
+        })
+    return JsonResponse(packages_data, safe=False)
 
 
 def package_dump(request):
