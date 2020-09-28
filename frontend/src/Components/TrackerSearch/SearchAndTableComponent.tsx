@@ -19,7 +19,7 @@ const SearchAndTableComponent = () => {
         <div className="searchBarAndTitleStyle">
             <SearchBarAndTitle setSearchString={setSearchString}/>
             <TrackerDataGrid data={filteredData}/>
-            <TrackerMap/>
+            <TrackerMap data={filteredData}/>
         </div>
     )
 }
