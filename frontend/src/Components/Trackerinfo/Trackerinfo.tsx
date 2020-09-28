@@ -1,13 +1,7 @@
-import {
-    Box,
-    Card,
-    CardContent,
-    Container,
-    Grid,
-    Typography,
-} from '@material-ui/core'
+import { Box, Card, Container, Grid } from '@material-ui/core'
 import React from 'react'
 import Charts from '../Charts/Charts'
+import CardInfo from './CardInfo/CardInfo'
 
 const Trackerinfo = () => {
     //Place holders until we can fetch data from API.
@@ -35,54 +29,29 @@ const Trackerinfo = () => {
                 <Box mt={5}>
                     <Card>
                         <Grid container xs={12}>
-                            <Grid item xs={4}>
-                                <CardContent>
-                                    <Typography variant="body2" component="h2">
-                                        <b>Name:</b> {dummy1.name}
-                                    </Typography>
-                                </CardContent>
-                            </Grid>
-                            <Grid item xs={4}>
-                                <CardContent>
-                                    <Typography variant="body2" component="h2">
-                                        <b>Max temperature:</b>
-                                        {dummy1.maxTemperature}
-                                    </Typography>
-                                </CardContent>
-                            </Grid>
-                            <Grid item xs={4}>
-                                <CardContent>
-                                    <Typography variant="body2" component="h2">
-                                        <b>Max humidity:</b>
-                                        {dummy1.maxHumidity}
-                                    </Typography>
-                                </CardContent>
-                            </Grid>
+                            <CardInfo parameter="Name" value={dummy1.name} />
+                            <CardInfo
+                                parameter="Max Temperature"
+                                value={dummy1.maxTemperature}
+                            />
+                            <CardInfo
+                                parameter="Max Humidity"
+                                value={dummy1.maxHumidity}
+                            />
                         </Grid>
                         <Grid container xs={12}>
-                            <Grid item xs={4}>
-                                <CardContent>
-                                    <Typography variant="body2" component="h2">
-                                        <b>Max impact:</b> {dummy1.maxImpact}
-                                    </Typography>
-                                </CardContent>
-                            </Grid>
-                            <Grid item xs={4}>
-                                <CardContent>
-                                    <Typography variant="body2" component="h2">
-                                        <b>Min temperature:</b>
-                                        {dummy1.minTemperature}
-                                    </Typography>
-                                </CardContent>
-                            </Grid>
-                            <Grid item xs={4}>
-                                <CardContent>
-                                    <Typography variant="body2" component="h2">
-                                        <b>Min humidity:</b>
-                                        {dummy1.minHumidity}
-                                    </Typography>
-                                </CardContent>
-                            </Grid>
+                            <CardInfo
+                                parameter="Max impact"
+                                value={dummy1.maxImpact}
+                            />
+                            <CardInfo
+                                parameter="Min Temperature"
+                                value={dummy1.minTemperature}
+                            />
+                            <CardInfo
+                                parameter="Min humidity"
+                                value={dummy1.minHumidity}
+                            />
                         </Grid>
                     </Card>
                 </Box>
