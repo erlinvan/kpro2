@@ -29,6 +29,16 @@ class Package(models.Model):
         items = response.get('Items', [])
         return items
 
+    def get_latest_timestamp(self):
+        """Retrieves the timestamp of the most recent record"""
+        dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
+        table = dynamodb.Table(settings.DATA_TABLE)
+        response = table.scan(
+            FilterExpression=Key(settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
+        )
+        items = response.get('Items', [])
+        return items
+
 
 class Beacon(models.Model):
     id = models.CharField(max_length=200, primary_key=True)

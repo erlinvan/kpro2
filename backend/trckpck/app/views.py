@@ -16,6 +16,31 @@ def data_dump(request):
     return JsonResponse(items, safe=False)
 
 
+def get_tracker_data(request):
+    package_id = request.GET.get('id')
+    company_id = request.GET.get('company')
+    if package_id:
+        return get_package_data_by_package_id(package_id)
+    else:
+        return list_packages(company_id)
+
+
+def list_packages(company_id):
+    packages = []
+    if company_id:
+        packages = Package.objects.filter(company_owner=company_id)
+    else:
+        packages = Package.objects.all()
+
+    packages_data = []
+    for package in packages:
+        packages_data.append((
+            package.id,
+            package.get_latest_timestamp()
+        ))
+    return JsonResponse(packages[0].get_latest_timestamp(), safe=False)
+
+
 def package_dump(request):
     """Retrieves a dump of all packages in the database"""
     packages = Package.objects.all()
@@ -41,7 +66,7 @@ def get_package_data_by_id(request, id):
     return JsonResponse(items, safe=False)
 
 
-def get_package_data_by_package_id(request, id):
+def get_package_data_by_package_id(id):
     """Retrieves all records for packet with id=id"""
     package = get_object_or_404(Package, pk=id)
     items = package.get_package_data()
