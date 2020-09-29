@@ -27,7 +27,17 @@ class Package(models.Model):
             FilterExpression=Key(settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
         )
         items = response.get('Items', [])
-        return items
+        payload_list = []
+        for item in items:
+            payload = {
+                "id": self.tracker_id,
+                "time_stamp": item['db_timestamp'],
+                "gps": item['reported']['GPS'],
+                "company_owner": self.company_owner,
+                "beacon_data": item['reported']['beacon_data']
+            }
+            payload_list.append(payload)
+        return payload_list
 
     def get_latest_timestamp(self):
         """Retrieves the timestamp of the most recent record"""
@@ -45,6 +55,7 @@ class Package(models.Model):
 
 
 class Beacon(models.Model):
+    """ This model will be relevant later when we add descriptions to beacons """
     id = models.CharField(max_length=200, primary_key=True)
     description = models.CharField(max_length=200)
 
