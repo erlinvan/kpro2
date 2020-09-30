@@ -3,16 +3,18 @@ import UsernameComp from './UsernameComp'
 import PasswordComp from './PasswordComp'
 import LoginButtonUser from './LoginButton'
 import NewUser from './NewUser'
+import './LoginFormat.css'
+import { Grid } from '@material-ui/core'
 
-function LoginFomat() {
+const LoginFormat = () =>{
     return (
-        <div className="LoginFormat">
-            <div className="Username "><UsernameComp></UsernameComp></div>
-            <div className="PasswordComp"><PasswordComp></PasswordComp></div>
-            <div className="LoginButtonUser"><LoginButtonUser></LoginButtonUser></div>
-            <div className="Newuser"><NewUser></NewUser></div>
-            </div>
+        <Grid className="LoginFormat">
+            <UsernameComp/>
+            <PasswordComp/>
+            <LoginButtonUser/>
+            <NewUser/>
+            </Grid>
     )
 }
 
-export default LoginFomat
+export default LoginFormat
