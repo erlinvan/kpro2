@@ -2,7 +2,7 @@ PROJECT_NAME     := uart_pca10056
 TARGETS          := nrf52840_xxaa
 OUTPUT_DIRECTORY := _build
 
-SDK_ROOT := $(wildcard ../../../../nRF5_SDK_17*)
+SDK_ROOT := ../../../nRF5_SDK_17.0.0_9d13099
 PROJ_DIR := ../../..
 
 $(OUTPUT_DIRECTORY)/nrf52840_xxaa.out: \

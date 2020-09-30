@@ -1,1 +1,3 @@
 _build/
+pca10056/blank/ses/Output/
+pca10056/blank/ses/uart_pca10056_Release.jlink
