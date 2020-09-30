@@ -33,6 +33,7 @@ class Package(models.Model):
 
         for item in items:
             self.add_beacon_description(item['reported']['beacon_data'])
+            self.format_beacon_values(item['reported']['beacon_data'])
             payload = {
                 "id": self.tracker_id,
                 "time_stamp": item['db_timestamp'],
@@ -43,14 +44,19 @@ class Package(models.Model):
             payload_list.append(payload)
         return payload_list
 
+    def format_beacon_values(self, beacon_data):
+        for b in beacon_data:
+            b["temperature"] = float(b['temperature'])
+            b["humidity"] = float(b['humidity'])
+
     def add_beacon_description(self, beacon_data):
         for b in beacon_data:
-            beacon_description=''
+            beacon_description = ''
             try:
                 beacon_description = Beacon.objects.get(id=b['beacon_id']).description
             except Beacon.DoesNotExist:
                 pass
-            b['description'] = beacon_description
+            b["description"] = beacon_description
 
 
     def get_latest_timestamp(self):
