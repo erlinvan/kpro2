@@ -1,5 +1,5 @@
 ## Dependencies
-### nRF52 SDK
+### nRF52 SDK 17
 #### Download
 [https://www.nordicsemi.com/Software-and-tools/Software/nRF5-SDK/Download](https://www.nordicsemi.com/Software-and-tools/Software/nRF5-SDK/Download)
 #### Documentation
@@ -15,9 +15,12 @@
 
 ## Setup
 ### SDK
-In *makefile* set the variable `SDK_ROOT` to the path to the SDK
+Place SDK in repository root.
+Possibly change `GNU_INSTALL_ROOT` in `SDK_ROOT/components/toolchain/gcc/Makfile.posix`.
+
 
 ## Usage
+`cd tracker/pca10056/blank/armgcc`
 
 `make`
 

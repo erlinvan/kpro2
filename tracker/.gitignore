@@ -1,5 +1,1 @@
-*.elf
-*.hex
-*.bin
-*.o
-nRF5_SDK*/
+_build/
