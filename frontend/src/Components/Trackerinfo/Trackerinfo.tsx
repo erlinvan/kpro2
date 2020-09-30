@@ -62,7 +62,7 @@ const Trackerinfo = () => {
         <>
             <Container>
                 <Box mt={5}>
-                    <Card>
+                    <Card elevation={5}>
                         <Grid container xs={12}>
                             <CardInfo parameter="Name" value={cardData.name} />
                             <CardInfo
@@ -88,6 +88,7 @@ const Trackerinfo = () => {
                     </Card>
                 </Box>
             </Container>
+            <br></br>
             <Charts data={temperatureChart} />
             <Charts data={humidityChart} />
         </>
