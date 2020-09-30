@@ -14,6 +14,7 @@ const Trackerinfo = () => {
         maxTemperature: '',
         minTemperature: '',
     })
+    //Hard code for now tracker id.
     const { response: trackerinfo } = useFetch<ITrackerinfo[]>('tracker/?id=1')
     const [Temperature, setTemperature] = useState<number[]>([])
     const [Humidity, setHumidity] = useState<number[]>([])
