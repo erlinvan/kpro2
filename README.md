@@ -42,3 +42,12 @@ theodorc@mycomputer: aws configure
 theodorc@mycomputer kpro2/backend: eb deploy
 theodorc@mycomputer kpro2/backend: eb status // This will report the status of our elastic beanstalk instance
 ```
+
+# Frontend
+
+## Netlify
+
+Netlify er konfigurert til å automatisk deploye når endringer skjer på main-branch. I tillegg deployes en testside for hver pull request.
+
+Status til prosjektet på Netlify er:
+[![Netlify Status](https://api.netlify.com/api/v1/badges/2eebe088-c242-41a6-ac44-052c7b5edb4c/deploy-status)](https://app.netlify.com/sites/trckpck/deploys)
