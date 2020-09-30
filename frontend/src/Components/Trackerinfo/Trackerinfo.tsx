@@ -6,7 +6,6 @@ import Charts from '../Charts/Charts'
 import CardInfo from './CardInfo/CardInfo'
 
 const Trackerinfo = () => {
-    //Place holders until we can fetch data from API.
     const [cardData, setCardData] = useState<trackerinfo>({
         name: '',
         maxHumidity: '',
