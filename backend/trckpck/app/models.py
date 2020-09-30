@@ -23,8 +23,10 @@ class Package(models.Model):
         """Retrieves all records for tracker with id=id"""
         dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
         table = dynamodb.Table(settings.DATA_TABLE)
-        response = table.scan(
-            FilterExpression=Key(settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
+        response = table.query(
+            IndexName='thing_name-db_timestamp-index',
+            ScanIndexForward=False,
+            KeyConditionExpression=Key(settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
         )
         items = response.get('Items', [])
         payload_list = []
