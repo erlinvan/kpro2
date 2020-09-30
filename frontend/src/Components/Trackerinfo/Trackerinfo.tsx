@@ -42,10 +42,8 @@ const Trackerinfo = () => {
     useEffect(() => {
         trackerinfo &&
             trackerinfo.length !== 0 &&
-            trackerinfo.map(
-                (beacondata) =>
-                    beacondata.beacon_data &&
-                    beacondata.beacon_data.map((e) => formatData(e))
+            trackerinfo.map((beacondata) =>
+                beacondata.beacon_data.map((e) => formatData(e))
             )
     }, [trackerinfo])
 
