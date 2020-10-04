@@ -59,19 +59,19 @@ class Package(models.Model):
             b["description"] = beacon_description
 
 
-    def get_latest_timestamp(self):
-        """Retrieves the timestamp of the most recent record"""
+    def get_latest_timestamp_and_position(self):
+        """Retrieves the timestamp and gps position of the most recent record"""
         dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
         table = dynamodb.Table(settings.DATA_TABLE)
         response = table.query(
             IndexName='thing_name-db_timestamp-index',
             ScanIndexForward=False,
             Limit=1,
-            ProjectionExpression="db_timestamp",
+            ProjectionExpression="db_timestamp, reported.GPS",
             KeyConditionExpression=Key(settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
         )
         items = response.get('Items', [])
-        return items[0]['db_timestamp']
+        return items[0]['db_timestamp'], items[0]['reported']['GPS']
 
 
 class Beacon(models.Model):
