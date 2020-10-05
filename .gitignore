@@ -27,3 +27,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .idea
+
+backend/.ebextensions/https*
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+*pem
+*crt

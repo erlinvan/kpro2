@@ -12,9 +12,8 @@ const Charts = (props: ICharts) => {
             text: props.data.type,
         },
         xAxis: {
-            categories: props.data.xAxis,
+            categories: props.data.timestamp,
         },
-
         series: [
             {
                 data: props.data.yAxis,
