@@ -1,7 +1,8 @@
 import React from 'react'
+import LoginFomat from '../../loginpage/LoginFormat'
 
 const Login = () => {
-    return <h1>Login</h1>
+    return <LoginFomat/>
 }
 
 export default Login
