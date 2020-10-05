@@ -38,7 +38,7 @@ const TrackerDataGrid = ({ data }: props) => {
     return (
         <div className="trackerDataGrid">
             <Typography variant="h6" style={typographyStyle}> Recently updated trackers</Typography>
-            <DataGrid rows={data} columns={columns} pageSize={5} onRowClick={(params) => {
+            <DataGrid rows={data} columns={columns} pageSize={10} onRowClick={(params) => {
                 history.push('trackerinfo')
             }} components={{
                 loadingOverlay: CustomLoadingOverlay,
@@ -50,7 +50,7 @@ const TrackerDataGrid = ({ data }: props) => {
 
 
 const typographyStyle = {
-    margin: 4,
+    margin: 5,
 }
 
 

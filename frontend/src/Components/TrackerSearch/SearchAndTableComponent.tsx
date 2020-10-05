@@ -25,8 +25,10 @@ const SearchAndTableComponent = () => {
             {context.isLoggedIn ?
                 <div className="searchBarAndTitleStyle">
                     <SearchBarAndTitle setSearchString={setSearchString} />
-                    <TrackerDataGrid data={filteredData} />
-                    <TrackerMap data={filteredData} />
+                    <div className="mapAndGridStyle">
+                        <TrackerDataGrid data={filteredData} />
+                        <TrackerMap data={filteredData} />
+                    </div>
                 </div> :
                 <Typography> You are not logged in!</Typography>}
 

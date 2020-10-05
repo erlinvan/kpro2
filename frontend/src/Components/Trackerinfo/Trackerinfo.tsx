@@ -13,7 +13,6 @@ const Trackerinfo = () => {
     const history = useHistory()
 
 
-
     const [cardData, setCardData] = useState<trackerinfo>({
         name: '',
         maxHumidity: '',
@@ -48,31 +47,31 @@ const Trackerinfo = () => {
     }
     useEffect(() => {
         trackerinfo &&
-            trackerinfo.length !== 0 &&
-            trackerinfo.map((beacondata) =>
-                beacondata.beacon_data.map((e) => formatData(e))
-            )
+        trackerinfo.length !== 0 &&
+        trackerinfo.map((beacondata) =>
+            beacondata.beacon_data.map((e) => formatData(e)),
+        )
     }, [trackerinfo])
 
     useEffect(() => {
         trackerinfo &&
-            setCardData({
-                name: trackerinfo[0].id,
-                maxHumidity: Math.max.apply(Math, Humidity).toString(),
-                maxTemperature: Math.max.apply(Math, Temperature).toString(),
-                minHumidity: Math.min.apply(Math, Humidity).toString(),
-                minTemperature: Math.min.apply(Math, Temperature).toString(),
-            })
+        setCardData({
+            name: trackerinfo[0].id,
+            maxHumidity: Math.max.apply(Math, Humidity).toString(),
+            maxTemperature: Math.max.apply(Math, Temperature).toString(),
+            minHumidity: Math.min.apply(Math, Humidity).toString(),
+            minTemperature: Math.min.apply(Math, Temperature).toString(),
+        })
     }, [Temperature, Humidity, trackerinfo])
     return (
         <>
             <Container>
 
-                    <IconButton aria-label="delete" onClick={() => {
-                        history.push('trackers')
-                    }}>
-                        <ArrowDownwardIcon fontSize="inherit" />
-                    </IconButton>
+                <IconButton aria-label="delete" onClick={() => {
+                    history.push('trackers')
+                }}>
+                    <ArrowDownwardIcon fontSize="inherit" />
+                </IconButton>
 
                 <Box mt={5}>
                     <Card elevation={5}>
