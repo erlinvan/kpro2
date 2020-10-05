@@ -9,7 +9,7 @@ import json
 class PackageTest(TestCase):
 
     def setUp(self):
-        self.client = Client()
+        self.client = Client(HTTP_X_username='superuser')
         for i in range(6):
             Package.objects.create(company_owner='apple', tracker_id=str(i))
         for i in range(4):
