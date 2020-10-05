@@ -69,7 +69,6 @@
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/sortlist/nrf_sortlist.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/strerror/nrf_strerror.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/uart/retarget.c" />
-      <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/ble/nrf_ble_scan/nrf_ble_scan.c" />
     </folder>
     <folder Name="None">
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/modules/nrfx/mdk/ses_startup_nrf52840.s" />
@@ -111,6 +110,7 @@
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/ble/common/ble_srv_common.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/ble/nrf_ble_gatt/nrf_ble_gatt.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/ble/nrf_ble_qwr/nrf_ble_qwr.c" />
+      <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/ble/nrf_ble_scan/nrf_ble_scan.c" />
     </folder>
     <folder Name="UTF8/UTF16 converter">
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/external/utf_converter/utf.c" />
