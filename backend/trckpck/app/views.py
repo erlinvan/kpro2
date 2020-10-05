@@ -27,9 +27,11 @@ def list_packages(company_id):
 
     packages_data = []
     for package in packages:
+        timestamp, gps = package.get_latest_timestamp_and_position()
         packages_data.append({
             'id': package.id,
-            'timestamp': package.get_latest_timestamp()
+            'timestamp': timestamp,
+            'gps': gps
         })
     return JsonResponse(packages_data, safe=False)
 
