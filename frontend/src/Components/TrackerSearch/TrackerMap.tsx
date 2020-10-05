@@ -24,7 +24,7 @@ const TrackerMap = ({ data }: props) => {
                 }}
             />,
         ))
-    }, [data])
+    }, [data, history])
 
 
     return (
