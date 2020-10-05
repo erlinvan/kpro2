@@ -7,4 +7,4 @@ const PasswordComp= () => {
     );
 }
 
-export default PasswordComp; 
+export default PasswordComp;

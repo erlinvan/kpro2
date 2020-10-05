@@ -6,15 +6,16 @@ import NewUser from './NewUser'
 import './LoginFormat.css'
 import { Grid } from '@material-ui/core'
 
-const LoginFormat = () =>{
+const LoginFormat = () => {
     return (
         <Grid className="LoginFormat">
-            <UsernameComp/>
-            <PasswordComp/>
-            <LoginButtonUser/>
-            <NewUser/>
-            </Grid>
+            <UsernameComp />
+            <PasswordComp />
+            <br></br>
+            <LoginButtonUser />
+            <NewUser />
+        </Grid>
     )
 }
 
-export default LoginFormat
+export default LoginFormat;
