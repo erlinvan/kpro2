@@ -31,6 +31,6 @@ const useFetch = <T extends any>(endpoint: string) => {
     return { response, error }
 }
 
-export const apiUrl = 'https://api.trckpck.theodorc.no'
+export const apiUrl = 'http://api.trckpck.theodorc.no'
 
 export default useFetch
