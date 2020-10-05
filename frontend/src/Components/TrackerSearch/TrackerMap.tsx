@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Map, Marker, TileLayer } from 'react-leaflet'
+import {useHistory} from 'react-router-dom'
 
 import './SearchAndTableComponent.css'
 
@@ -9,8 +10,8 @@ type props = {
 
 const TrackerMap = ({ data }: props) => {
 
-
-    const [markers, setMarkers] = useState([])
+    const history = useHistory();
+    const [markers, setMarkers] = useState([]);
 
     useEffect(() => {
         setMarkers(data.map((trackerLocation: { id: any; coordinates: any[] }) =>
@@ -18,6 +19,7 @@ const TrackerMap = ({ data }: props) => {
                 key={trackerLocation.id}
                 position={[trackerLocation.coordinates[0], trackerLocation.coordinates[1]]}
                 onClick={() => {
+                    history.push('trackerinfo')
                     console.log(trackerLocation.id)
                 }}
             />,

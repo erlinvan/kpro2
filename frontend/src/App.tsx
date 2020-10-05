@@ -1,19 +1,18 @@
 import React from 'react'
 import './App.css'
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { BrowserRouter, Route, Switch} from 'react-router-dom'
 import AppBar from './AppBar/AppBar'
 import Trackerinfo from './Components/Trackerinfo/Trackerinfo'
-import TrackerTable from './Components/TrackerSearch/SearchAndTableComponent'
 import Login from './Components/Login/Login'
+import SearchAndTableComponent from './Components/TrackerSearch/SearchAndTableComponent'
+import ContextProvider from './Context/ContextProvider'
 
 function App() {
     return (
-        <>
-            <div className="App">
-                <AppBar></AppBar>
-            </div>
+        <ContextProvider>
             <div>
                 <BrowserRouter>
+                    <AppBar  />
                     <Switch>
                         <Route
                             exact
@@ -23,13 +22,13 @@ function App() {
                         <Route
                             exact
                             path="/trackers"
-                            component={TrackerTable}
+                            component={SearchAndTableComponent}
                         />
                         <Route exact path="/login" component={Login} />
                     </Switch>
                 </BrowserRouter>
             </div>
-        </>
+        </ContextProvider>
     )
 }
 
