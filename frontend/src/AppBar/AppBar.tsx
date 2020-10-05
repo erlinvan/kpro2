@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import AppBarMUI from '@material-ui/core/AppBar'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
@@ -11,7 +11,6 @@ const AppBar = () => {
     let history = useHistory()
 
     const context = useContext(Context)
-    const [isLoggedIn, setIsLoggedIn] = useState(context.isLoggedIn)
     return (
         <AppBarMUI position="static">
             <Toolbar>
@@ -27,9 +26,8 @@ const AppBar = () => {
                         </Button> : <></>
                 }
 
-                <Button color="inherit" onClick={() => {
-                    context.isLoggedIn && context.setIsLoggedIn(!isLoggedIn)
-                    isLoggedIn && setIsLoggedIn(context.isLoggedIn)
+                <Button color="inherit"  onClick={() => {
+                    context.isLoggedIn && context.setIsLoggedIn(!context.isLoggedIn)
                     history.push('login')
                 }}>
                     <Typography variant="h6">{context.isLoggedIn ? 'Sign out' : 'Sign in'}</Typography>
