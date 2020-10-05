@@ -18,6 +18,9 @@ class PackageTest(TestCase):
     def dummy_data(self):
         return 'test'
 
+    def dummy_data_timestamp_and_position(self):
+        return 'some_timestamp', 'some position'
+
 
     @patch.object(Package, 'get_package_data', dummy_data)
     def get_packages_data_by_company_id(self):
@@ -25,7 +28,7 @@ class PackageTest(TestCase):
         self.assertEqual(len(json.loads(res.content)), 6)
 
     @patch.object(Package, 'get_package_data', dummy_data)
-    @patch.object(Package, 'get_latest_timestamp', dummy_data)
+    @patch.object(Package, 'get_latest_timestamp_and_position', dummy_data_timestamp_and_position)
     def test_get_tracker_data_no_q(self):
         """ Make sure that tracker_data returns 200"""
         res = self.client.get(reverse('tracker_data'), format='JSON')
@@ -33,7 +36,7 @@ class PackageTest(TestCase):
         self.assertEqual(len(json.loads(res.content)), 10)
 
     @patch.object(Package, 'get_package_data', dummy_data)
-    @patch.object(Package, 'get_latest_timestamp', dummy_data)
+    @patch.object(Package, 'get_latest_timestamp_and_position', dummy_data_timestamp_and_position)
     def test_get_tracker_data_id_q(self):
         """ Make sure that tracker_data returns 200 when given a existing pkg"""
         pkg = Package.objects.get(pk=1)
@@ -41,14 +44,14 @@ class PackageTest(TestCase):
         self.assertEqual(res.status_code, 200)
 
     @patch.object(Package, 'get_package_data', dummy_data)
-    @patch.object(Package, 'get_latest_timestamp', dummy_data)
+    @patch.object(Package, 'get_latest_timestamp_and_position', dummy_data_timestamp_and_position)
     def test_get_tracker_data_id_q_404(self):
         """ Make sure that tracker_data returns 200 when given a existing pkg"""
         res = self.client.get(reverse('tracker_data')+"?id=9000", format='JSON')
         self.assertEqual(res.status_code, 404)
 
     @patch.object(Package, 'get_package_data', dummy_data)
-    @patch.object(Package, 'get_latest_timestamp', dummy_data)
+    @patch.object(Package, 'get_latest_timestamp_and_position', dummy_data_timestamp_and_position)
     def test_get_tracker_data_company_q(self):
         """ Make sure that tracker_data returns 200 when given a existing pkg"""
         res = self.client.get(reverse('tracker_data')+"?company=apple", format='JSON')
