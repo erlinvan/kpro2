@@ -12,7 +12,7 @@ interface IGlobalContext {
 
 // @ts-ignore
 const ContextProvider = ({ children }) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(true)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
 
     return <Context.Provider value={{
         isLoggedIn,

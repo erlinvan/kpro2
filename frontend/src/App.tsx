@@ -6,14 +6,19 @@ import Trackerinfo from './Components/Trackerinfo/Trackerinfo'
 import Login from './Components/Login/Login'
 import SearchAndTableComponent from './Components/TrackerSearch/SearchAndTableComponent'
 import ContextProvider from './Context/ContextProvider'
+import LandingPage from './LandingPage/LandingPage'
 
 function App() {
+
     return (
         <ContextProvider>
             <div>
                 <BrowserRouter>
                     <AppBar />
                     <Switch>
+                        <Route exact
+                               path="/"
+                               component={LandingPage} />
                         <Route
                             exact
                             path="/trackerinfo"
