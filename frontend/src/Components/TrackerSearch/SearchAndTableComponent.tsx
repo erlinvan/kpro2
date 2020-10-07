@@ -16,7 +16,7 @@ const SearchAndTableComponent = () => {
     useEffect(() => {
         setFilteredData([])
         trackers &&
-            trackers.map(
+            trackers.forEach(
                 (e) =>
                     String(e.id).includes(searchString) &&
                     setFilteredData((filteredData) => [...filteredData, e])
