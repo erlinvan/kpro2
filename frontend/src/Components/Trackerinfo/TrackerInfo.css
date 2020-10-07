@@ -1,0 +1,10 @@
+.trackerInfoCard {
+    width:90%;
+}
+.backButtonAndCardWrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width:95%;
+}

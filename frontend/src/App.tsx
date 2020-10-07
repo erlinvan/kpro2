@@ -1,6 +1,6 @@
 import React from 'react'
 import './App.css'
-import { BrowserRouter, Route, Switch} from 'react-router-dom'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import AppBar from './AppBar/AppBar'
 import Trackerinfo from './Components/Trackerinfo/Trackerinfo'
 import Login from './Components/Login/Login'
@@ -12,7 +12,7 @@ function App() {
         <ContextProvider>
             <div>
                 <BrowserRouter>
-                    <AppBar  />
+                    <AppBar />
                     <Switch>
                         <Route
                             exact

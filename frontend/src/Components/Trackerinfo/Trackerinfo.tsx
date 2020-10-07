@@ -7,6 +7,7 @@ import CardInfo from './CardInfo/CardInfo'
 import IconButton from '@material-ui/core/IconButton'
 import ArrowDownwardIcon from '@material-ui/icons/ArrowBack'
 import { useHistory } from 'react-router-dom'
+import './TrackerInfo.css'
 
 const Trackerinfo = () => {
 
@@ -67,37 +68,42 @@ const Trackerinfo = () => {
         <>
             <Container>
 
-                <IconButton aria-label="delete" onClick={() => {
-                    history.push('trackers')
-                }}>
-                    <ArrowDownwardIcon fontSize="inherit" />
-                </IconButton>
 
                 <Box mt={5}>
-                    <Card elevation={5}>
-                        <Grid container xs={12}>
-                            <CardInfo parameter="Name" value={cardData.name} />
-                            <CardInfo
-                                parameter="Max Temperature"
-                                value={cardData.maxTemperature}
-                            />
-                            <CardInfo
-                                parameter="Max Humidity"
-                                value={cardData.maxHumidity}
-                            />
-                        </Grid>
-                        <Grid container xs={12}>
-                            <Grid item xs={4}></Grid>
-                            <CardInfo
-                                parameter="Min Temperature"
-                                value={cardData.minTemperature}
-                            />
-                            <CardInfo
-                                parameter="Min humidity"
-                                value={cardData.minHumidity}
-                            />
-                        </Grid>
-                    </Card>
+                    <div className="backButtonAndCardWrapper">
+                        <IconButton aria-label="delete" onClick={() => {
+                            history.push('trackers')
+                        }}>
+                            <ArrowDownwardIcon fontSize="inherit" />
+                        </IconButton>
+                        <Card elevation={5} className="trackerInfoCard">
+
+
+                            <Grid container xs={12}>
+                                <CardInfo parameter="Name" value={cardData.name} />
+                                <CardInfo
+                                    parameter="Max Temperature"
+                                    value={cardData.maxTemperature}
+                                />
+                                <CardInfo
+                                    parameter="Max Humidity"
+                                    value={cardData.maxHumidity}
+                                />
+                            </Grid>
+                            <Grid container xs={12}>
+                                <Grid item xs={4}></Grid>
+                                <CardInfo
+                                    parameter="Min Temperature"
+                                    value={cardData.minTemperature}
+                                />
+                                <CardInfo
+                                    parameter="Min humidity"
+                                    value={cardData.minHumidity}
+                                />
+                            </Grid>
+                        </Card>
+
+                    </div>
                 </Box>
 
             </Container>

@@ -8,7 +8,7 @@ import { withRouter, useHistory } from 'react-router-dom'
 import { Context } from '../Context/ContextProvider'
 
 const AppBar = () => {
-    let history = useHistory()
+    const history = useHistory()
 
     const context = useContext(Context)
     return (

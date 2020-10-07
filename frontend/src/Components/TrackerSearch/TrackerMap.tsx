@@ -45,4 +45,4 @@ const TrackerMap = ({ data }: props) => {
 }
 
 
-export default TrackerMap
+export default TrackerMap;
