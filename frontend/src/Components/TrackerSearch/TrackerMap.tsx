@@ -1,44 +1,50 @@
 import React, { useEffect, useState } from 'react'
 import { Map, Marker, TileLayer } from 'react-leaflet'
+
 import {useHistory} from 'react-router-dom'
+
+
+import { IGPSData, ITrackers } from '../../Interfaces/ITrackers'
 
 import './SearchAndTableComponent.css'
 
 type props = {
-    data: any,
+    data: ITrackers[]
 }
 
 const TrackerMap = ({ data }: props) => {
 
+
     const history = useHistory();
-    const [markers, setMarkers] = useState([]);
+
+    const [markers, setMarkers] = useState<any>([])
 
     useEffect(() => {
-        setMarkers(data.map((trackerLocation: { id: any; coordinates: any[] }) =>
-            <Marker
-                key={trackerLocation.id}
-                position={[trackerLocation.coordinates[0], trackerLocation.coordinates[1]]}
-                onClick={() => {
-                    history.push('trackerinfo')
-                    console.log(trackerLocation.id)
-                }}
-            />,
-        ))
-    }, [data, history])
-
+        setMarkers(
+            data.map((trackerLocation: { id: string; gps: IGPSData }) => (
+                <Marker
+                    key={trackerLocation.id}
+                    position={[
+                        trackerLocation.gps.lat,
+                        trackerLocation.gps.lon,
+                    ]}
+                    onClick={() => {
+                        console.log(trackerLocation.id)
+                        history.push('trackerinfo')
+                    }}
+                />
+            ))
+        )
+    }, [data])
 
     return (
         <div>
             <Map center={[64.9139, 18.7522]} zoom={4.8}>
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-
-                    attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
+                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                 />
-                {
-                    markers
-                }
-
+                {markers}
             </Map>
         </div>
     )

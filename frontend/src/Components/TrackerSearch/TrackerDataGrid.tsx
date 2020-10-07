@@ -5,12 +5,11 @@ import './SearchAndTableComponent.css'
 import { useHistory } from 'react-router-dom'
 
 import { Typography } from '@material-ui/core'
-
+import { ITrackers } from '../../Interfaces/ITrackers'
 
 const columns: ColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'timeStamp', headerName: 'Timestamp', width: 130 },
-
+    { field: 'timestamp', headerName: 'Timestamp', width: 300 },
 ]
 // This function is to be used for when this actually loads data from an API.
 // Currently won't show up, since all data is saved locally, not fetched.
@@ -24,12 +23,13 @@ function CustomLoadingOverlay() {
     )
 }
 
-// Here as well I am not familiar enough with TS
-// will look into the correct data types later. TODO: Change to correct types
 type props = {
-    data: any,
+    data: ITrackers[]
 }
 
+
+// This grid needs to communicate with another page. The current implementation only logs which record has been pressed,
+// it does not actually go to said log.
 /* Do not remove; this will be used when setting context.
     onRowClick={(params) => {console.log(params.data.id)}}
  */
@@ -37,21 +37,27 @@ const TrackerDataGrid = ({ data }: props) => {
     const history = useHistory()
     return (
         <div className="trackerDataGrid">
-            <Typography variant="h6" style={typographyStyle}> Recently updated trackers</Typography>
-            <DataGrid rows={data} columns={columns} pageSize={10} onRowClick={(params) => {
-                history.push('trackerinfo')
-            }} components={{
-                loadingOverlay: CustomLoadingOverlay,
-            }}
+            <Typography variant="h6" style={typographyStyle}>
+                Recently updated trackers
+            </Typography>
+            <DataGrid
+                rows={data}
+                columns={columns}
+                pageSize={5}
+                onRowClick={(params) => {
+                    history.push('trackerinfo')
+                }}
+                components={{
+                    loadingOverlay: CustomLoadingOverlay,
+                }}
+
             />
         </div>
     )
 }
 
-
 const typographyStyle = {
     margin: 5,
 }
-
 
 export default TrackerDataGrid
