@@ -6,7 +6,6 @@ import TrackerMap from './TrackerMap'
 
 import { withRouter } from 'react-router-dom'
 import { Context } from '../../Context/ContextProvider'
-import { Typography } from '@material-ui/core'
 import { useHistory } from 'react-router-dom'
 
 

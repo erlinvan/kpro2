@@ -9,7 +9,7 @@ const LandingPage = () => {
     const startRouting = context.isLoggedIn ? 'trackers' : 'login'
     useEffect(() => {
         history.push(startRouting)
-    }, [])
+    }, [history, startRouting])
 
     return (
         <>
