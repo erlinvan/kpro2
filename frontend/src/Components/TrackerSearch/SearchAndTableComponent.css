@@ -6,6 +6,11 @@
     margin: 10px;
     padding: 10px;
 }
+.mapAndGridStyle {
+    display: flex;
+    flex-direction: row;
+
+}
 
 .gridOverlay {
     position: absolute;
@@ -14,13 +19,14 @@
 }
 
 .trackerDataGrid {
-    height:400px;
-    width: 40%;
+    height:700px;
+    width: 450px;
+    margin:10px;
 }
 
 .leaflet-container {
-    width: 675px;
+    width: 650px;
     height: 700px;
-    margin-top: 45px;
+    margin-top: 52px;
 
 }

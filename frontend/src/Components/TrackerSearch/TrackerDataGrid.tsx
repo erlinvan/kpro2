@@ -2,6 +2,7 @@ import React from 'react'
 import { GridOverlay, DataGrid, ColDef } from '@material-ui/data-grid'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import './SearchAndTableComponent.css'
+import { useHistory } from 'react-router-dom'
 
 import { Typography } from '@material-ui/core'
 import { ITrackers } from '../../Interfaces/ITrackers'
@@ -26,9 +27,14 @@ type props = {
     data: ITrackers[]
 }
 
+
 // This grid needs to communicate with another page. The current implementation only logs which record has been pressed,
 // it does not actually go to said log.
+/* Do not remove; this will be used when setting context.
+    onRowClick={(params) => {console.log(params.data.id)}}
+ */
 const TrackerDataGrid = ({ data }: props) => {
+    const history = useHistory()
     return (
         <div className="trackerDataGrid">
             <Typography variant="h6" style={typographyStyle}>
@@ -39,19 +45,19 @@ const TrackerDataGrid = ({ data }: props) => {
                 columns={columns}
                 pageSize={5}
                 onRowClick={(params) => {
-                    //TODO: add id to context
-                    console.log(params.data.id)
+                    history.push('trackerinfo')
                 }}
                 components={{
                     loadingOverlay: CustomLoadingOverlay,
                 }}
+
             />
         </div>
     )
 }
 
 const typographyStyle = {
-    margin: 4,
+    margin: 5,
 }
 
 export default TrackerDataGrid

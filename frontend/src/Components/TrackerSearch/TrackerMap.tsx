@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Map, Marker, TileLayer } from 'react-leaflet'
+
+import { useHistory } from 'react-router-dom'
+
+
 import { IGPSData, ITrackers } from '../../Interfaces/ITrackers'
+
 import './SearchAndTableComponent.css'
 
 type props = {
@@ -8,6 +13,10 @@ type props = {
 }
 
 const TrackerMap = ({ data }: props) => {
+
+
+    const history = useHistory()
+
     const [markers, setMarkers] = useState<any>([])
 
     useEffect(() => {
@@ -21,11 +30,12 @@ const TrackerMap = ({ data }: props) => {
                     ]}
                     onClick={() => {
                         console.log(trackerLocation.id)
+                        history.push('trackerinfo')
                     }}
                 />
-            ))
+            )),
         )
-    }, [data])
+    }, [data, history])
 
     return (
         <div>
@@ -39,5 +49,6 @@ const TrackerMap = ({ data }: props) => {
         </div>
     )
 }
+
 
 export default TrackerMap
