@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Map, Marker, TileLayer } from 'react-leaflet'
 
-import {useHistory} from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 
 
 import { IGPSData, ITrackers } from '../../Interfaces/ITrackers'
@@ -15,7 +15,7 @@ type props = {
 const TrackerMap = ({ data }: props) => {
 
 
-    const history = useHistory();
+    const history = useHistory()
 
     const [markers, setMarkers] = useState<any>([])
 
@@ -33,7 +33,7 @@ const TrackerMap = ({ data }: props) => {
                         history.push('trackerinfo')
                     }}
                 />
-            ))
+            )),
         )
     }, [data])
 
@@ -51,4 +51,4 @@ const TrackerMap = ({ data }: props) => {
 }
 
 
-export default TrackerMap;
+export default TrackerMap

@@ -6,7 +6,7 @@ import Trackerinfo from './Components/Trackerinfo/Trackerinfo'
 import Login from './Components/Login/Login'
 import SearchAndTableComponent from './Components/TrackerSearch/SearchAndTableComponent'
 import ContextProvider from './Context/ContextProvider'
-import LandingPage from './LandingPage/LandingPage'
+import LandingPage from './Components/LandingPage/LandingPage'
 
 function App() {
 
