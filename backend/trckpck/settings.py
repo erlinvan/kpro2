@@ -75,6 +75,19 @@ WSGI_APPLICATION = 'trckpck.wsgi.application'
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'X-username',
+]
+
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 

@@ -6,9 +6,15 @@ const useFetch = <T extends any>(endpoint: string) => {
 
     useEffect(() => {
         let isSubscribed = true
+        // Send all requests as superuser until we create concepts of users in frontend
+        const data = {
+            headers: {
+                'X-username': 'superuser',
+            },
+        }
         const fetchData = async () => {
             try {
-                const res = await fetch(`${apiUrl}/${endpoint}`)
+                const res = await fetch(`${apiUrl}/${endpoint}`, data)
                 if (!res.ok) {
                     throw new Error(`${res.status} ${res.statusText}`)
                 }

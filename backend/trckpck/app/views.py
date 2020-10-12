@@ -1,12 +1,10 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
-from django.conf import settings
-import boto3
-from boto3.dynamodb.conditions import Key
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from trckpck.app.models import Package
+from trckpck.app.decorators import check_authorization
 
 
+@check_authorization
 def get_tracker_data(request):
     """ /tracker with query parameters """
     package_id = request.GET.get('id')
