@@ -36,3 +36,4 @@ backend/.ebextensions/https*
 !.elasticbeanstalk/*.global.yml
 *pem
 *crt
+.DS_Store
