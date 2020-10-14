@@ -11,11 +11,8 @@ import './TrackerInfo.css'
 import { Context } from '../../Context/ContextProvider'
 
 const Trackerinfo = () => {
-
     const context = useContext(Context)
     const history = useHistory()
-
-
     const [cardData, setCardData] = useState<trackerinfo>({
         name: '',
         maxHumidity: '',
@@ -23,8 +20,7 @@ const Trackerinfo = () => {
         maxTemperature: '',
         minTemperature: '',
     })
-    //Hard code for now tracker id.
-    const { response: trackerinfo } = useFetch<ITrackerinfo[]>('tracker/?id=1')
+    const { response: trackerinfo } = useFetch<ITrackerinfo[]>('tracker/?id=' + context.trackerID)
     const [Temperature, setTemperature] = useState<number[]>([])
     const [Humidity, setHumidity] = useState<number[]>([])
     const [Timestamp, setTimestamp] = useState<string[]>([])
