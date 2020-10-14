@@ -35,7 +35,7 @@ const useFetch = <T extends any>(endpoint: string) => {
         return () => {
             isSubscribed = false
         }
-    }, [endpoint])
+    }, [endpoint, context.userLoggedIn])
 
     return { response, error }
 }
