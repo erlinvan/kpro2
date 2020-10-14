@@ -1,13 +1,16 @@
 from django.core.management.base import BaseCommand, CommandError
-from trckpck.app.models import Package
+from trckpck.app.models import Package, Company
 
 class Command(BaseCommand):
     help = 'Fills the database with some dummy data'
 
     def handle(self, *args, **options):
         try:
+            company = Company.objects.create(
+                company_name='apple'
+            )
             Package.objects.create(
-                company_owner='apple',
+                company_owner=company,
                 tracker_id='test'
             )
             for i in range(12):

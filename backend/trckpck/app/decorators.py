@@ -1,6 +1,6 @@
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
-from trckpck.app.models import Package
+from trckpck.app.models import Package, AppUser, Company
 
 
 permissions = {'user': ['apple', 'komplett']}
@@ -13,12 +13,18 @@ def check_authorization(func):
             username = request.headers['X-username']
             package_id = request.GET.get('id')
             company_id = request.GET.get('company')
-            if username in superusers:
-                return func(request, *args, **kwargs)
-            if package_id:
-                package = get_object_or_404(Package, pk=package_id)
-                company_id = package.company_owner
-            if username in permissions and company_id in permissions[username]:
-                return func(request, *args, **kwargs)
+            try:
+                user = AppUser.objects.get(pk=username)
+                if user.is_superuser:
+                    return func(request, *args, **kwargs)
+                if package_id:
+                    package = get_object_or_404(Package, pk=package_id)
+                    company_id = package.company_owner.company_name
+                company = Company.objects.get(pk=company_id)
+                if user in company.appuser_set.all():
+                    return func(request, *args, **kwargs)
+            except (AppUser.DoesNotExist, Company.DoesNotExist):
+                pass
+
         return HttpResponseForbidden("You don't have the permissions to view this page")
     return wrapper

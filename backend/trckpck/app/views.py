@@ -1,6 +1,6 @@
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
-from trckpck.app.models import Package
+from trckpck.app.models import Package, Company
 from trckpck.app.decorators import check_authorization
 from django.core.management import call_command
 
@@ -20,7 +20,7 @@ def list_packages(company_id):
     """ /tracker?company=company_id  """
     packages = []
     if company_id:
-        packages = Package.objects.filter(company_owner=company_id)
+        packages = Package.objects.filter(company_owner=Company.objects.get(pk=company_id))
     else:
         packages = Package.objects.all()
 
