@@ -62,8 +62,17 @@ def generate_random_data_point(beacon_id, city, thing_name):
    }
    return item
 
-item = generate_random_data_point("789", oslo, "dummy")
-s=table.put_item(
-    Item=item
-)
-print(s)
+items = []
+for thing_name in ['dummy_apple'+str(i) for i in range(12)]:
+   items.append(generate_random_data_point(str(randint(0,1000)), oslo,thing_name))
+
+for thing_name in ['dummy_komplett'+str(i) for i in range(7)]:
+   items.append(generate_random_data_point(str(randint(0,1000)), trondheim, thing_name))
+for thing_name in ['dummy_fjellsport'+str(i) for i in range(5)]:
+   items.append(generate_random_data_point(str(randint(0,1000)), trondheim,thing_name))
+
+for item in items:
+   print(item)
+   s=table.put_item(
+       Item=item
+   )
