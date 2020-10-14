@@ -25,13 +25,15 @@ const AppBar = () => {
                             <Typography variant="h6">My Trackers</Typography>
                         </Button> : <></>
                 }
-
-                <Button color="inherit"  onClick={() => {
-                    context.isLoggedIn && context.setIsLoggedIn(!context.isLoggedIn)
-                    history.push('login')
-                }}>
-                    <Typography variant="h6">{context.isLoggedIn ? 'Sign out' : 'Sign in'}</Typography>
-                </Button>
+                {
+                    context.isLoggedIn ?
+                        <Button color="inherit" onClick={() => {
+                            context.isLoggedIn && context.setIsLoggedIn(!context.isLoggedIn)
+                            history.push('login')
+                        }}>
+                            <Typography variant="h6">{context.isLoggedIn ? 'Sign out' : 'Sign in'}</Typography>
+                        </Button> : <></>
+                }
             </Toolbar>
 
         </AppBarMUI>

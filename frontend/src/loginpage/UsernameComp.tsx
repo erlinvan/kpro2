@@ -1,10 +1,17 @@
-import React from 'react'
+import React, { Dispatch, SetStateAction, useContext } from 'react'
 import TextField from '@material-ui/core/TextField'
 
-const logincomponents = () => {
-    return(
-        <TextField id="standard-basic" label="Username" />
-    );
+type props = {
+    setUserName: Dispatch<SetStateAction<string>>
 }
 
-export default logincomponents; 
+const LoginComponent = ({ setUserName }: props) => {
+    return (
+        <TextField id="standard-basic" label="Username"
+                   onChange={(event) => {
+                       setUserName('' + event.target.value)
+                   }} />
+    )
+}
+
+export default LoginComponent
