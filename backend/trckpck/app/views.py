@@ -1,7 +1,8 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from trckpck.app.models import Package
 from trckpck.app.decorators import check_authorization
+from django.core.management import call_command
 
 
 @check_authorization
@@ -49,3 +50,6 @@ def get_packages_data_by_company_id(request, id):
         packages_data.append(package.get_package_data())
     return JsonResponse(packages_data, safe=False)
 
+def init_db(request):
+    call_command('initdb')
+    return HttpResponse(content="ok", status=200)
