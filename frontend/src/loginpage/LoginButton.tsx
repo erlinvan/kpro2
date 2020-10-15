@@ -14,7 +14,7 @@ const LoginButton = ({userName}: props) => {
     return (
         <Button variant="contained" onClick={() => {
             context.setIsLoggedIn(true)
-            context.setUserLoggedIn(userName)
+            context.setUserName(userName)
             history.push('trackers')
         }}>Sign in</Button>
     )

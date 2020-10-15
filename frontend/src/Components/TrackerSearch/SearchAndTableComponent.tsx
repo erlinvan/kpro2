@@ -49,11 +49,10 @@ const SearchAndTableComponent = () => {
 
                     history.push('login')
                 }
-
             </>
         )
     }
-    return <CircularProgress />
+    return <CircularProgress/>
 }
 
 export default withRouter(SearchAndTableComponent)
