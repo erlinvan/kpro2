@@ -259,9 +259,57 @@ static void print_data(const ble_data_t data) {
     printf("\r\n");
 }
 
+
+// Check if mac address in data packet matches mac address of device
+bool mac_address_location_match(const ble_gap_evt_adv_report_t* p_adv_report) {
+    if (
+      p_adv_report->data.p_data[18] == p_adv_report->peer_addr.addr[0] &&
+      p_adv_report->data.p_data[19] == p_adv_report->peer_addr.addr[1] &&
+      p_adv_report->data.p_data[20] == p_adv_report->peer_addr.addr[2] &&
+      p_adv_report->data.p_data[21] == p_adv_report->peer_addr.addr[3] &&
+      p_adv_report->data.p_data[22] == p_adv_report->peer_addr.addr[4] &&
+      p_adv_report->data.p_data[23] == p_adv_report->peer_addr.addr[5]
+    ) {
+        return true;
+    }
+    return false;
+}
+
+
+bool data_match_frametype(const ble_data_t data) {
+    if (
+      data.p_data[11] == 0xa1
+    ) {
+        return true;
+    }
+    return false;
+}
+
+
+// 8.8 fixed point byte representation to float
+float hex_to_float(const uint8_t integer, const uint8_t decimal){
+   const float aftercomma = (float)decimal/256.0;
+   return (float)integer + aftercomma;
+}
+
+
+void print_temperature(const ble_data_t data){
+     const float float_to_print = hex_to_float(data.p_data[14], data.p_data[15]);
+     printf("\n\rTemperature: %.2fC\r\n", float_to_print);
+}
+
+
+void print_humidity(const ble_data_t data){
+     const float float_to_print = hex_to_float(data.p_data[16], data.p_data[17]);
+     printf("\n\rHumidity: %.2f%c\r\n", float_to_print, '%');
+}
+
+
 static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
 
-    if (address_match_prefix(p_scan_evt->params.filter_match.p_adv_report->peer_addr.addr)) {
+    if (address_match_prefix(p_scan_evt->params.filter_match.p_adv_report->peer_addr.addr) &&
+        data_match_frametype(p_scan_evt->params.filter_match.p_adv_report->data) &&
+        mac_address_location_match(p_scan_evt->params.filter_match.p_adv_report)) {
         printf("\r\nFound minew device\r\n");
     } else {
         return;
@@ -273,27 +321,11 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
         return;
     }
 
-    switch (p_scan_evt->params.filter_match.p_adv_report->peer_addr.addr_type) {
-        case BLE_GAP_ADDR_TYPE_PUBLIC:
-            printf("\r\naddress type BLE_GAP_ADDR_TYPE_PUBLIC\r\n");
-            break;
-        case BLE_GAP_ADDR_TYPE_RANDOM_STATIC:
-            printf("\r\naddress type BLE_GAP_ADDR_TYPE_RANDOM_STATIC\r\n");
-            break;
-        case BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE:
-            printf("\r\naddress type BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE\r\n");
-            break;
-        case BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE:
-            printf("\r\naddress type BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE\r\n");
-            break;
-        case BLE_GAP_ADDR_TYPE_ANONYMOUS:
-            printf("\r\naddress type BLE_GAP_ADDR_TYPE_ANONYMOUS\r\n");
-            break;
-    }
-
     print_data(p_scan_evt->params.filter_match.p_adv_report->data);
     print_address(p_scan_evt->params.filter_match.p_adv_report);
     print_name(p_scan_evt->params.filter_match.p_adv_report);
+    print_temperature(p_scan_evt->params.filter_match.p_adv_report->data);
+    print_humidity(p_scan_evt->params.filter_match.p_adv_report->data);
     printf("\r\nrssi: %d\r\n", p_scan_evt->params.filter_match.p_adv_report->rssi);
     print_manufacturer_data(p_scan_evt->params.filter_match.p_adv_report);
 }
