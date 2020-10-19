@@ -1,21 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import UsernameComp from './UsernameComp'
-import PasswordComp from './PasswordComp'
 import LoginButtonUser from './LoginButton'
-import NewUser from './NewUser'
 import './LoginFormat.css'
 import { Grid } from '@material-ui/core'
 
+
 const LoginFormat = () => {
+
+
+    const [userName, setUserName] = useState('')
     return (
         <Grid className="LoginFormat">
-            <UsernameComp />
-            <PasswordComp />
+            <UsernameComp setUserName={setUserName} />
+
             <br></br>
-            <LoginButtonUser />
-            <NewUser />
+            <LoginButtonUser userName={userName} />
+
         </Grid>
     )
 }
 
-export default LoginFormat;
+export default LoginFormat
