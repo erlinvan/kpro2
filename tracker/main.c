@@ -77,6 +77,7 @@
 NRF_BLE_SCAN_DEF(m_scan);
 
 const uint8_t address_prefix[4] = {0xac, 0x23, 0x3f, 0xa4};
+const uint8_t manufactor_specific_uuid[3] = {0x03, 0xe1, 0xff};
 
 static const ble_gap_scan_params_t m_scan_param =
 {
@@ -285,6 +286,18 @@ bool data_match_frametype(const ble_data_t data) {
     return false;
 }
 
+static bool data_match_uuid(const ble_data_t data) {
+    if (
+      data.p_data[4] == manufactor_specific_uuid[0] &&
+      data.p_data[5] == manufactor_specific_uuid[1] &&
+      data.p_data[6] == manufactor_specific_uuid[2] &&
+      data.p_data[9] == manufactor_specific_uuid[1] &&
+      data.p_data[10] == manufactor_specific_uuid[2]
+    ) {
+        return true;
+    }
+    return false;
+}
 
 // 8.8 fixed point byte representation to float
 float hex_to_float(const uint8_t integer, const uint8_t decimal){
@@ -306,9 +319,9 @@ void print_humidity(const ble_data_t data){
 
 
 static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
-
     if (address_match_prefix(p_scan_evt->params.filter_match.p_adv_report->peer_addr.addr) &&
         data_match_frametype(p_scan_evt->params.filter_match.p_adv_report->data) &&
+        data_match_uuid(p_scan_evt->params.filter_match.p_adv_report->data) &&
         mac_address_location_match(p_scan_evt->params.filter_match.p_adv_report)) {
         printf("\r\nFound minew device\r\n");
     } else {
