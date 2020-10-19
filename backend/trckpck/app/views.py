@@ -33,6 +33,7 @@ def get_user_data(request):
                 'timestamp': timestamp,
                 'gps': gps
             })
+        packages_data.sort(key=lambda p: p['timestamp'], reverse=True)
         return JsonResponse(packages_data, safe=False)
 
     except AppUser.DoesNotExist:
@@ -55,6 +56,7 @@ def list_packages(company_id):
             'timestamp': timestamp,
             'gps': gps
         })
+        packages_data.sort(key=lambda p: p['timestamp'], reverse=True)
     return JsonResponse(packages_data, safe=False)
 
 
