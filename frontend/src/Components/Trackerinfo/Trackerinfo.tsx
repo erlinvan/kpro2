@@ -9,6 +9,7 @@ import ArrowDownwardIcon from '@material-ui/icons/ArrowBack'
 import { useHistory } from 'react-router-dom'
 import './TrackerInfo.css'
 import { Context } from '../../Context/ContextProvider'
+import HistoricTrackerMap from './HistoricTrackerMap'
 
 const Trackerinfo = () => {
     const context = useContext(Context)
@@ -106,8 +107,14 @@ const Trackerinfo = () => {
 
                     </Container>
                     <br></br>
+
                     <Charts data={temperatureChart} />
-                    <Charts data={humidityChart} /></>
+                    <Charts data={humidityChart} />
+                    <div className='historicWrapper'>
+                    {trackerinfo && <HistoricTrackerMap data={trackerinfo} />
+                    }
+                    </div>
+                </>
                 :
 
                 history.push('login')
