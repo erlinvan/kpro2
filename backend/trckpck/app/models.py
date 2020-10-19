@@ -4,16 +4,15 @@ from django.db import models
 from django.conf import settings
 
 
+class Company(models.Model):
+    company_name = models.CharField(max_length=200, primary_key=True)
+
+    def __str__(self):
+        return self.company_name
+
+
 class Package(models.Model):
-    COMPANY_CHOICES = (
-        ('apple', 'Apple'),
-        ('komplett', 'Komplett'),
-        ('fjellsport', 'Fjellsport'),
-        ('dressmann', 'Dressmann'),
-        ('asus', 'Asus')
-    )
-    company_owner = models.CharField(max_length=200,
-                                     choices=COMPANY_CHOICES)
+    company_owner = models.ForeignKey(Company, on_delete=models.CASCADE)
     tracker_id = models.CharField(max_length=200)
 
     class Meta:
@@ -38,7 +37,7 @@ class Package(models.Model):
                 "id": self.tracker_id,
                 "time_stamp": item['db_timestamp'],
                 "gps": item['reported']['GPS'],
-                "company_owner": self.company_owner,
+                "company_owner": self.company_owner.company_name,
                 "beacon_data": item['reported']['beacon_data']
             }
             payload_list.append(payload)
@@ -78,4 +77,13 @@ class Beacon(models.Model):
     """ This model will be relevant later when we add descriptions to beacons """
     id = models.CharField(max_length=200, primary_key=True)
     description = models.CharField(max_length=200)
+
+
+class AppUser(models.Model):
+    username = models.CharField(max_length=200, primary_key=True)
+    permissions = models.ManyToManyField(Company, blank=True)
+    is_superuser = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.username
 
