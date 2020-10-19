@@ -21,7 +21,10 @@ def get_user_data(request):
     try:
         username = request.headers['X-username']
         user = AppUser.objects.get(pk=username)
-        packages = Package.objects.filter(company_owner__appuser=user)
+        if user.is_superuser:
+            packages = Package.objects.all()
+        else:
+            packages = Package.objects.filter(company_owner__appuser=user)
         packages_data = []
         for package in packages:
             timestamp, gps = package.get_latest_timestamp_and_position()
