@@ -1,6 +1,6 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
-from trckpck.app.models import Package, Company
+from trckpck.app.models import Package, Company, AppUser
 from trckpck.app.decorators import check_authorization
 from django.core.management import call_command
 
@@ -14,6 +14,26 @@ def get_tracker_data(request):
         return get_package_data_by_package_id(package_id)
     else:
         return list_packages(company_id)
+
+
+def get_user_data(request):
+    """ /tracker/userdata """
+    try:
+        username = request.headers['X-username']
+        user = AppUser.objects.get(pk=username)
+        packages = Package.objects.filter(company_owner__appuser=user)
+        packages_data = []
+        for package in packages:
+            timestamp, gps = package.get_latest_timestamp_and_position()
+            packages_data.append({
+                'id': package.id,
+                'timestamp': timestamp,
+                'gps': gps
+            })
+        return JsonResponse(packages_data, safe=False)
+
+    except AppUser.DoesNotExist:
+        return HttpResponseForbidden("You don't have the permissions to view this page")
 
 
 def list_packages(company_id):
