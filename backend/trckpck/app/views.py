@@ -1,8 +1,9 @@
+""" Views """
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.core.management import call_command
 from trckpck.app.models import Package
 from trckpck.app.decorators import check_authorization
-from django.core.management import call_command
 
 
 @check_authorization
@@ -12,8 +13,7 @@ def get_tracker_data(request):
     company_id = request.GET.get('company')
     if package_id:
         return get_package_data_by_package_id(package_id)
-    else:
-        return list_packages(company_id)
+    return list_packages(company_id)
 
 
 def list_packages(company_id):
@@ -35,21 +35,22 @@ def list_packages(company_id):
     return JsonResponse(packages_data, safe=False)
 
 
-def get_package_data_by_package_id(id):
+def get_package_data_by_package_id(id_):
     """Retrieves all records for packet with id=id"""
-    package = get_object_or_404(Package, pk=id)
+    package = get_object_or_404(Package, pk=id_)
     items = package.get_package_data()
     return JsonResponse(items, safe=False)
 
 
-def get_packages_data_by_company_id(request, id):
+def get_packages_data_by_company_id(_, id_):
     """Retrieves all packages with data for company with id=id, might be useful later"""
-    packages = Package.objects.filter(company_owner=id.lower())
+    packages = Package.objects.filter(company_owner=id_.lower())
     packages_data = []
     for package in packages:
         packages_data.append(package.get_package_data())
     return JsonResponse(packages_data, safe=False)
 
-def init_db(request):
+def init_db(_):
+    """ Initialize the database with dummy data """
     call_command('initdb')
     return HttpResponse(content="ok", status=200)

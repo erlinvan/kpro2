@@ -1,3 +1,4 @@
+""" Models """
 import boto3
 from boto3.dynamodb.conditions import Key
 from django.db import models
@@ -5,6 +6,7 @@ from django.conf import settings
 
 
 class Package(models.Model):
+    """ Model for packages """
     COMPANY_CHOICES = (
         ('apple', 'Apple'),
         ('komplett', 'Komplett'),
@@ -45,19 +47,20 @@ class Package(models.Model):
         return payload_list
 
     def format_beacon_values(self, beacon_data):
-        for b in beacon_data:
-            b["temperature"] = float(b['temperature'])
-            b["humidity"] = float(b['humidity'])
+        """ Format beacons values into floats """
+        for beacon in beacon_data:
+            beacon["temperature"] = float(beacon['temperature'])
+            beacon["humidity"] = float(beacon['humidity'])
 
     def add_beacon_description(self, beacon_data):
-        for b in beacon_data:
+        """" Add beacon description by their IDs """
+        for beacon in beacon_data:
             beacon_description = ''
             try:
-                beacon_description = Beacon.objects.get(id=b['beacon_id']).description
+                beacon_description = Beacon.objects.get(id=beacon['beacon_id']).description
             except Beacon.DoesNotExist:
                 pass
-            b["description"] = beacon_description
-
+            beacon["description"] = beacon_description
 
     def get_latest_timestamp_and_position(self):
         """Retrieves the timestamp and gps position of the most recent record"""
@@ -78,4 +81,3 @@ class Beacon(models.Model):
     """ This model will be relevant later when we add descriptions to beacons """
     id = models.CharField(max_length=200, primary_key=True)
     description = models.CharField(max_length=200)
-

@@ -1,3 +1,4 @@
+""" Admin"""
 from django.contrib import admin
 from trckpck.app.models import Package, Beacon
 

@@ -1,15 +1,17 @@
+""" Tests """
+import json
+from unittest.mock import patch
 from django.test import TestCase, Client
 from django.urls import reverse
-from unittest.mock import patch
-
 from trckpck.app.models import Package
 import trckpck.app.decorators as decorators
-import json
 
 
 class PackageTest(TestCase):
+    """ Tests for the package model """
 
     def setUp(self):
+        """ Set up for the tests """
         self.client = Client(HTTP_X_username='random_user')
         for i in range(6):
             Package.objects.create(company_owner='apple', tracker_id=str(i))
@@ -17,15 +19,18 @@ class PackageTest(TestCase):
             Package.objects.create(company_owner='komplett', tracker_id=str(i+10))
 
     def dummy_data(self):
+        """ Dummy function """
         return 'test'
 
     def dummy_data_timestamp_and_position(self):
+        """ Dummy data and timestamp and position """
         return 'some_timestamp', 'some position'
 
     @patch.object(Package, 'get_package_data', dummy_data)
     @patch.object(decorators, 'superusers', ['random_user'])
     @patch.object(decorators, 'permissions', {})
     def get_packages_data_by_company_id(self):
+        """ Get packages data by company id """
         res = self.client.get(reverse('get_packages_data_by_company_id', args=['apple']), format='JSON')
         self.assertEqual(len(json.loads(res.content)), 6)
 
@@ -45,7 +50,6 @@ class PackageTest(TestCase):
     @patch.object(decorators, 'permissions', {})
     def test_get_tracker_data_id_q(self):
         """ Make sure that tracker_data returns 200 when given a existing pkg"""
-        pkg = Package.objects.get(pk=1)
         res = self.client.get(reverse('tracker_data')+"?id=1", format='JSON')
         self.assertEqual(res.status_code, 200)
 
