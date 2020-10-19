@@ -31,6 +31,7 @@ def get_user_data(request):
             packages_data.append({
                 'id': package.id,
                 'timestamp': timestamp,
+                'company': package.company_owner.company_name,
                 'gps': gps
             })
         packages_data.sort(key=lambda p: p['timestamp'], reverse=True)
