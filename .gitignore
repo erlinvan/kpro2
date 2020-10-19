@@ -37,3 +37,4 @@ backend/.ebextensions/https*
 *pem
 *crt
 .DS_Store
+*tags
