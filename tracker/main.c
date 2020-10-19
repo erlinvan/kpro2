@@ -260,6 +260,7 @@ static void print_data(const ble_data_t data) {
 }
 
 
+// Check is mac address in data packet matches mac address of device
 bool mac_address_location_match(const ble_gap_evt_adv_report_t* p_adv_report) {
     if (
       p_adv_report->data.p_data[18] == p_adv_report->peer_addr.addr[0] &&
