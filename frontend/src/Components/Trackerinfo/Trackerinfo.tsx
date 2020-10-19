@@ -44,7 +44,10 @@ const Trackerinfo = () => {
             parseInt(beacondata.temperature),
         ])
         setHumidity((Humidity) => [...Humidity, parseInt(beacondata.humidity)])
-        setTimestamp((Timestamp) => [...Timestamp, beacondata.timestamp])
+        setTimestamp((Timestamp) => [
+            ...Timestamp,
+            beacondata.timestamp.split('.')[0],
+        ])
     }
     useEffect(() => {
         trackerinfo &&
