@@ -45,6 +45,8 @@
 #include "ble_advertising.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
+#include "fds.h"
+#include "fds_internal_defs.h"
 #include "app_timer.h"
 #include "app_uart.h"
 #include "app_util_platform.h"
@@ -77,6 +79,9 @@
 NRF_BLE_SCAN_DEF(m_scan);
 
 const uint8_t address_prefix[4] = {0xac, 0x23, 0x3f, 0xa4};
+
+#define FILE_ID 0x0001
+#define RECORD_KEY 0x1111
 
 static const ble_gap_scan_params_t m_scan_param =
 {
@@ -188,6 +193,13 @@ static void idle_state_handle(void) {
 }
 
 
+static void power_management_init(void) {
+    APP_ERROR_CHECK(
+        nrf_pwr_mgmt_init()
+    );
+}
+
+
 static void scan_start(void) {
     printf("\r\nStarting scan.\r\n");
     APP_ERROR_CHECK(nrf_ble_scan_start(&m_scan));
@@ -261,7 +273,7 @@ static void print_data(const ble_data_t data) {
 
 
 // Check if mac address in data packet matches mac address of device
-bool mac_address_location_match(const ble_gap_evt_adv_report_t* p_adv_report) {
+static bool mac_address_location_match(const ble_gap_evt_adv_report_t* p_adv_report) {
     if (
       p_adv_report->data.p_data[18] == p_adv_report->peer_addr.addr[0] &&
       p_adv_report->data.p_data[19] == p_adv_report->peer_addr.addr[1] &&
@@ -276,7 +288,7 @@ bool mac_address_location_match(const ble_gap_evt_adv_report_t* p_adv_report) {
 }
 
 
-bool data_match_frametype(const ble_data_t data) {
+static bool data_match_frametype(const ble_data_t data) {
     if (
       data.p_data[11] == 0xa1
     ) {
@@ -287,19 +299,19 @@ bool data_match_frametype(const ble_data_t data) {
 
 
 // 8.8 fixed point byte representation to float
-float hex_to_float(const uint8_t integer, const uint8_t decimal){
+static float hex_to_float(const uint8_t integer, const uint8_t decimal){
    const float aftercomma = (float)decimal/256.0;
    return (float)integer + aftercomma;
 }
 
 
-void print_temperature(const ble_data_t data){
+static void print_temperature(const ble_data_t data){
      const float float_to_print = hex_to_float(data.p_data[14], data.p_data[15]);
      printf("\n\rTemperature: %.2fC\r\n", float_to_print);
 }
 
 
-void print_humidity(const ble_data_t data){
+static void print_humidity(const ble_data_t data){
      const float float_to_print = hex_to_float(data.p_data[16], data.p_data[17]);
      printf("\n\rHumidity: %.2f%c\r\n", float_to_print, '%');
 }
@@ -344,6 +356,72 @@ static void scan_init(void) {
     );
 }
 
+
+static void fds_evt_handler(fds_evt_t const * p_fds_evt) {
+    if (p_fds_evt->id == FDS_EVT_INIT) {
+        APP_ERROR_CHECK(p_fds_evt->result);
+    }
+}
+
+
+static void write_to_flash(const uint8_t *data, const size_t length) {
+    const fds_record_t record = {
+        .file_id = FILE_ID,
+        .key = RECORD_KEY,
+        .data.p_data = data,
+        .data.length_words = length
+    };
+    fds_record_desc_t record_desc;
+
+    APP_ERROR_CHECK(
+        fds_record_write(&record_desc, &record)
+    );
+}
+
+
+static void read_from_flash() {
+    fds_flash_record_t  flash_record;
+    fds_record_desc_t   record_desc;
+    fds_find_token_t    ftok;
+    /* It is required to zero the token before first use. */
+    memset(&ftok, 0x00, sizeof(fds_find_token_t));
+    /* Loop until all records with the given key and file ID have been found. */
+    if (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
+        APP_ERROR_CHECK(
+            fds_record_open(&record_desc, &flash_record)
+        );
+
+        printf("\r\n");
+        for (size_t i = 0; i < flash_record.p_header->length_words; i++) {
+            printf(
+                "%c%c%c%c",
+                ((uint8_t *)flash_record.p_data)[i*4 + 0],
+                ((uint8_t *)flash_record.p_data)[i*4 + 1],
+                ((uint8_t *)flash_record.p_data)[i*4 + 2],
+                ((uint8_t *)flash_record.p_data)[i*4 + 3]
+            );
+        }
+        printf("\r\n");
+
+        /* Access the record through the flash_record structure. */
+        /* Close the record when done. */
+        APP_ERROR_CHECK(
+            fds_record_close(&record_desc)
+        );
+    }
+}
+
+
+static void flash_storage_init(void) {
+    APP_ERROR_CHECK(
+        fds_register(fds_evt_handler)
+    );
+    APP_ERROR_CHECK(
+        fds_init()
+    );
+}
+
+
 void button_0_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
     printf("\r\nButton 0 press\r\n");
 
@@ -363,8 +441,12 @@ void button_0_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
 void button_1_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
     printf("\r\nButton 1 press\r\n");
 
+    const uint8_t test_data[] = "abcdefgh";
+    write_to_flash(test_data, 2);
+    read_from_flash();
+
     // TODO figure out how sleep mode works
-    sleep_mode_enter();
+    //sleep_mode_enter();
 }
 
 
@@ -402,9 +484,10 @@ int main(void) {
     log_init();
     timers_init();
     gpio_init();
-    APP_ERROR_CHECK(nrf_pwr_mgmt_init());
+    power_management_init();
     ble_stack_init();
     scan_init();
+    flash_storage_init();
 
     scan_start();
 
