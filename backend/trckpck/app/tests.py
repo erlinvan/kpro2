@@ -16,6 +16,8 @@ class PackageTest(TestCase):
             Package.objects.create(company_owner=apple, tracker_id=str(i))
         for i in range(4):
             Package.objects.create(company_owner=komplett, tracker_id=str(i+10))
+        for i in range(2):
+            Package.objects.create(company_owner=asus, tracker_id=str(i+20))
         AppUser.objects.create(username='superuser', is_superuser=True)
         user = AppUser.objects.create(username='random_user', is_superuser=False)
         apple.appuser_set.add(user)
@@ -38,7 +40,7 @@ class PackageTest(TestCase):
         """ Make sure that tracker_data returns 200"""
         res = self.client.get(reverse('tracker_data'), format='JSON', HTTP_X_username='superuser')
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(len(json.loads(res.content)), 10)
+        self.assertEqual(len(json.loads(res.content)), 12)
 
     @patch.object(Package, 'get_package_data', dummy_data)
     @patch.object(Package, 'get_latest_timestamp_and_position', dummy_data_timestamp_and_position)
@@ -62,6 +64,16 @@ class PackageTest(TestCase):
         res = self.client.get(reverse('tracker_data')+"?company=apple", format='JSON', HTTP_X_username='superuser')
         self.assertEqual(res.status_code, 200)
         self.assertEqual(len(json.loads(res.content)), 6)
+
+    @patch.object(Package, 'get_package_data', dummy_data)
+    @patch.object(Package, 'get_latest_timestamp_and_position', dummy_data_timestamp_and_position)
+    def test_get_user_data(self):
+        """ Make sure a user gets all his data """
+        response = self.client.get(reverse('user_data'), format='JSON', HTTP_X_username='random_user')
+        response2 = self.client.get(reverse('user_data'), format='JSON', HTTP_X_username='not_existing_user')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content)), 8)
+        self.assertEqual(response2.status_code, 403)
 
     @patch.object(Package, 'get_package_data', dummy_data)
     @patch.object(Package, 'get_latest_timestamp_and_position', dummy_data_timestamp_and_position)

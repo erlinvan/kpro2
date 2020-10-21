@@ -14,6 +14,15 @@ class Command(BaseCommand):
             user = AppUser.objects.create(
                 username='user',
             )
+            appleuser = AppUser.objects.create(
+                username='appleUser'
+            )
+            komplettuser = AppUser.objects.create(
+                username='komplettUser'
+            )
+            fjellsportuser = AppUser.objects.create(
+                username='fjellsportUser'
+            )
 
             # Create companies
             apple = Company.objects.create(
@@ -52,6 +61,10 @@ class Command(BaseCommand):
             # Add permissions
             apple.appuser_set.add(user)
             fjellsport.appuser_set.add(user)
+            apple.appuser_set.add(appleuser)
+            komplett.appuser_set.add(komplettuser)
+            fjellsport.appuser_set.add(fjellsportuser)
+
 
         except Exception:
             raise Exception("Something went wrong. Most likely this command has already been run and  the packages are in the database")
