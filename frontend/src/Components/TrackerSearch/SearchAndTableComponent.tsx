@@ -24,8 +24,12 @@ const SearchAndTableComponent = () => {
         trackers &&
         trackers.forEach(
             (e) =>
-                String(e.id).includes(searchString) &&
-                setFilteredData((filteredData) => [...filteredData, e]),
+                isNaN(Number(searchString)) ?
+                    String(e.company).includes(searchString) &&
+                    setFilteredData((filteredData) => [...filteredData, e])
+                    :
+                    String(e.id).includes(searchString) &&
+                    setFilteredData((filteredData) => [...filteredData, e]),
         )
     }, [searchString, trackers])
     useEffect(() => {
@@ -49,7 +53,7 @@ const SearchAndTableComponent = () => {
             </>
         )
     }
-    return <CircularProgress/>
+    return <CircularProgress />
 }
 
 export default withRouter(SearchAndTableComponent)

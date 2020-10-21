@@ -45,6 +45,16 @@ theodorc@mycomputer kpro2/backend: eb status // This will report the status of o
 
 # Frontend
 
+## Hvordan utvikle lokalt i Visual Studio Code
+* Klon prosjektet
+* Åpne frontend-mappa i Visual Studio Code
+
+```
+(venv)erlinvan@mycomputer: npm install
+(venv)erlinvan@mycomputer: npm start
+```
+* Prosjektet vil så være tilgjengelig på http://127.0.0.1:3000
+
 ## Netlify
 
 Netlify er konfigurert til å automatisk deploye når endringer skjer på main-branch. I tillegg deployes en testside for hver pull request.

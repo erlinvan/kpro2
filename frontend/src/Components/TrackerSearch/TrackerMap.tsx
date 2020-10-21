@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Map, Marker, TileLayer } from 'react-leaflet'
 
 import { useHistory } from 'react-router-dom'
-
+import { Context } from '../../Context/ContextProvider'
 
 import { IGPSData, ITrackers } from '../../Interfaces/ITrackers'
 
@@ -13,11 +13,9 @@ type props = {
 }
 
 const TrackerMap = ({ data }: props) => {
-
-
     const history = useHistory()
-
     const [markers, setMarkers] = useState<any>([])
+    const context = useContext(Context)
 
     useEffect(() => {
         setMarkers(
@@ -29,13 +27,13 @@ const TrackerMap = ({ data }: props) => {
                         trackerLocation.gps.lon,
                     ]}
                     onClick={() => {
-                        console.log(trackerLocation.id)
+                        context.setTrackerID(+trackerLocation.id)
                         history.push('trackerinfo')
                     }}
                 />
-            )),
+            ))
         )
-    }, [data, history])
+    }, [data, history, context])
 
     return (
         <div>
@@ -49,6 +47,5 @@ const TrackerMap = ({ data }: props) => {
         </div>
     )
 }
-
 
 export default TrackerMap
