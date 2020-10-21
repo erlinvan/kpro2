@@ -10,7 +10,8 @@ import { Context } from '../../Context/ContextProvider'
 
 const columns: ColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'timestamp', headerName: 'Timestamp', width: 300 },
+    { field: 'timestamp', headerName: 'Timestamp', width: 250 },
+    { field: 'company', headerName: 'Company', width: 110 },
 ]
 function CustomLoadingOverlay() {
     return (
