@@ -28,7 +28,7 @@ type props = {
 
 const TrackerDataGrid = ({ data }: props) => {
     const history = useHistory()
-    const context = useContext(Context);
+    const context = useContext(Context)
 
     const handleClick = (id: number) => {
         context.setTrackerID(id)
@@ -42,7 +42,7 @@ const TrackerDataGrid = ({ data }: props) => {
             <DataGrid
                 rows={data}
                 columns={columns}
-                pageSize={5}
+                pageSize={10}
                 onRowClick={(params) => handleClick(Number(params.data.id))}
                 components={{
                     loadingOverlay: CustomLoadingOverlay,
