@@ -14,6 +14,7 @@ const SearchBarAndTitle = ({ setSearchString }: props) => {
             label="Search for tracker"
             onChange={(event) => {
                 setSearchString('' + event.target.value)
+                isNaN(Number(event.target.value)) ? console.log('ja'): console.log('nei')
             }}
         />
     )
