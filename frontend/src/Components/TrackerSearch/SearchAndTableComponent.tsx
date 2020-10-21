@@ -8,7 +8,6 @@ import { withRouter } from 'react-router-dom'
 import { Context } from '../../Context/ContextProvider'
 import { useHistory } from 'react-router-dom'
 
-
 import { ITrackers } from '../../Interfaces/ITrackers'
 import useFetch from '../../utils/useFetch'
 import { CircularProgress } from '@material-ui/core'
@@ -19,9 +18,7 @@ const SearchAndTableComponent = () => {
     const history = useHistory()
     const [searchString, setSearchString] = useState('')
     const [filteredData, setFilteredData] = useState<ITrackers[]>()
-    const { response: trackers } = useFetch<ITrackers[]>(
-        'tracker/?company=apple',
-    )
+    const { response: trackers } = useFetch<ITrackers[]>('tracker/userdata')
     useEffect(() => {
         setFilteredData([])
         trackers &&
