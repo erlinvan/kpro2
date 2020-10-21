@@ -21,6 +21,10 @@ const useFetch = <T extends any>(endpoint: string) => {
             try {
                 const res = await fetch(`${apiUrl}/${endpoint}`, data)
                 if (!res.ok) {
+                    // Since authentication is not implemented, 403 while logged in is true is the result of invalid username
+                    if (res.status ===403 && context.isLoggedIn){
+                        context.setWarning('Invalid username')
+                    }
                     context.setUserName('')
                     context.setIsLoggedIn(false)
                     history.push('login')
