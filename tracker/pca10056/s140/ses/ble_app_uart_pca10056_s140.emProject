@@ -54,6 +54,7 @@
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/uart/app_uart_fifo.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/util/app_util_platform.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/timer/drv_rtc.c" />
+      <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/fds/fds.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/hardfault/hardfault_implementation.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/util/nrf_assert.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/atomic_fifo/nrf_atfifo.c" />
@@ -62,6 +63,8 @@
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/balloc/nrf_balloc.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/external/fprintf/nrf_fprintf.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/external/fprintf/nrf_fprintf_format.c" />
+      <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/fstorage/nrf_fstorage.c" />
+      <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/fstorage/nrf_fstorage_sd.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/memobj/nrf_memobj.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/pwr_mgmt/nrf_pwr_mgmt.c" />
       <file file_name="../../../nRF5_SDK_17.0.0_9d13099/components/libraries/ringbuf/nrf_ringbuf.c" />
