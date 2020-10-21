@@ -306,15 +306,23 @@ float hex_to_float(const uint8_t integer, const uint8_t decimal){
 }
 
 
-void print_temperature(const ble_data_t data){
-     const float float_to_print = hex_to_float(data.p_data[14], data.p_data[15]);
-     printf("\n\rTemperature: %.2fC\r\n", float_to_print);
+void print_temperature(const float value){
+     printf("\n\rTemperature: %.2fC\r\n", value);
 }
 
 
-void print_humidity(const ble_data_t data){
-     const float float_to_print = hex_to_float(data.p_data[16], data.p_data[17]);
-     printf("\n\rHumidity: %.2f%c\r\n", float_to_print, '%');
+void print_humidity(const float value) {
+     printf("\n\rHumidity: %.2f%c\r\n", value, '%');
+}
+
+const float extract_temperature(const ble_data_t data){
+     const float temperature_value = hex_to_float(data.p_data[14], data.p_data[15]);
+     return temperature_value;
+}
+
+const float extract_humidity(const ble_data_t data){
+    const float humidity_value = hex_to_float(data.p_data[16], data.p_data[17]);
+    return humidity_value;
 }
 
 
@@ -334,11 +342,16 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
         return;
     }
 
+    const float temperature_value = extract_temperature(p_scan_evt->params.filter_match.p_adv_report->data);
+    const float humidity_value = extract_humidity(p_scan_evt->params.filter_match.p_adv_report->data);
+
     print_data(p_scan_evt->params.filter_match.p_adv_report->data);
     print_address(p_scan_evt->params.filter_match.p_adv_report);
     print_name(p_scan_evt->params.filter_match.p_adv_report);
-    print_temperature(p_scan_evt->params.filter_match.p_adv_report->data);
-    print_humidity(p_scan_evt->params.filter_match.p_adv_report->data);
+
+    print_temperature(temperature_value);
+    print_humidity(humidity_value);
+
     printf("\r\nrssi: %d\r\n", p_scan_evt->params.filter_match.p_adv_report->rssi);
     print_manufacturer_data(p_scan_evt->params.filter_match.p_adv_report);
 }
