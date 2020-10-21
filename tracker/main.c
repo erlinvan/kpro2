@@ -79,6 +79,7 @@
 NRF_BLE_SCAN_DEF(m_scan);
 
 const uint8_t address_prefix[4] = {0xac, 0x23, 0x3f, 0xa4};
+const uint8_t manufactor_specific_uuid[3] = {0x03, 0xe1, 0xff};
 
 #define FILE_ID 0x0001
 #define RECORD_KEY 0x1111
@@ -297,6 +298,18 @@ static bool data_match_frametype(const ble_data_t data) {
     return false;
 }
 
+static bool data_match_uuid(const ble_data_t data) {
+    if (
+      data.p_data[4] == manufactor_specific_uuid[0] &&
+      data.p_data[5] == manufactor_specific_uuid[1] &&
+      data.p_data[6] == manufactor_specific_uuid[2] &&
+      data.p_data[9] == manufactor_specific_uuid[1] &&
+      data.p_data[10] == manufactor_specific_uuid[2]
+    ) {
+        return true;
+    }
+    return false;
+}
 
 // 8.8 fixed point byte representation to float
 static float hex_to_float(const uint8_t integer, const uint8_t decimal){
@@ -305,22 +318,30 @@ static float hex_to_float(const uint8_t integer, const uint8_t decimal){
 }
 
 
-static void print_temperature(const ble_data_t data){
-     const float float_to_print = hex_to_float(data.p_data[14], data.p_data[15]);
-     printf("\n\rTemperature: %.2fC\r\n", float_to_print);
+static void print_temperature(const float value){
+     printf("\n\rTemperature: %.2fC\r\n", value);
 }
 
 
-static void print_humidity(const ble_data_t data){
-     const float float_to_print = hex_to_float(data.p_data[16], data.p_data[17]);
-     printf("\n\rHumidity: %.2f%c\r\n", float_to_print, '%');
+static void print_humidity(const float value) {
+     printf("\n\rHumidity: %.2f%c\r\n", value, '%');
+}
+
+static const float extract_temperature(const ble_data_t data){
+     const float temperature_value = hex_to_float(data.p_data[14], data.p_data[15]);
+     return temperature_value;
+}
+
+static const float extract_humidity(const ble_data_t data){
+    const float humidity_value = hex_to_float(data.p_data[16], data.p_data[17]);
+    return humidity_value;
 }
 
 
 static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
-
     if (address_match_prefix(p_scan_evt->params.filter_match.p_adv_report->peer_addr.addr) &&
         data_match_frametype(p_scan_evt->params.filter_match.p_adv_report->data) &&
+        data_match_uuid(p_scan_evt->params.filter_match.p_adv_report->data) &&
         mac_address_location_match(p_scan_evt->params.filter_match.p_adv_report)) {
         printf("\r\nFound minew device\r\n");
     } else {
@@ -333,11 +354,16 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
         return;
     }
 
+    const float temperature_value = extract_temperature(p_scan_evt->params.filter_match.p_adv_report->data);
+    const float humidity_value = extract_humidity(p_scan_evt->params.filter_match.p_adv_report->data);
+
     print_data(p_scan_evt->params.filter_match.p_adv_report->data);
     print_address(p_scan_evt->params.filter_match.p_adv_report);
     print_name(p_scan_evt->params.filter_match.p_adv_report);
-    print_temperature(p_scan_evt->params.filter_match.p_adv_report->data);
-    print_humidity(p_scan_evt->params.filter_match.p_adv_report->data);
+
+    print_temperature(temperature_value);
+    print_humidity(humidity_value);
+
     printf("\r\nrssi: %d\r\n", p_scan_evt->params.filter_match.p_adv_report->rssi);
     print_manufacturer_data(p_scan_evt->params.filter_match.p_adv_report);
 }
