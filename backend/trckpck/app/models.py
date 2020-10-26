@@ -32,6 +32,7 @@ class Package(models.Model):
 
         for item in items:
             self.add_beacon_description(item['reported']['beacon_data'])
+            self.add_beacon_gps(item['reported']['beacon_data'])
             self.format_beacon_values(item['reported']['beacon_data'])
             payload = {
                 "id": self.tracker_id,
@@ -47,6 +48,17 @@ class Package(models.Model):
         for b in beacon_data:
             b["temperature"] = float(b['temperature'])
             b["humidity"] = float(b['humidity'])
+
+    def add_beacon_gps(self, beacon_data):
+        for b in beacon_data:
+            try:
+                beacon_latitude = Beacon.objects.get(id=b['beacon_id']).latitude
+                beacon_longitude = Beacon.objects.get(id=b['beacon_id']).longitude
+                if beacon_latitude and beacon_longitude:
+                    b['latitude'] = beacon_latitude
+                    b['longitude'] = beacon_longitude
+            except Beacon.DoesNotExist:
+                pass
 
     def add_beacon_description(self, beacon_data):
         for b in beacon_data:
@@ -77,6 +89,8 @@ class Beacon(models.Model):
     """ This model will be relevant later when we add descriptions to beacons """
     id = models.CharField(max_length=200, primary_key=True)
     description = models.CharField(max_length=200)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
 
 
 class AppUser(models.Model):
