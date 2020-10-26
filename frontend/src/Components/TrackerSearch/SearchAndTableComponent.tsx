@@ -13,7 +13,6 @@ import useFetch from '../../utils/useFetch'
 import { CircularProgress } from '@material-ui/core'
 
 const SearchAndTableComponent = () => {
-
     const context = useContext(Context)
     const history = useHistory()
     const [searchString, setSearchString] = useState('')
@@ -22,15 +21,13 @@ const SearchAndTableComponent = () => {
     useEffect(() => {
         setFilteredData([])
         trackers &&
-        trackers.forEach(
-            (e) =>
-                isNaN(Number(searchString)) ?
-                    String(e.company).includes(searchString) &&
-                    setFilteredData((filteredData) => [...filteredData, e])
-                    :
-                    String(e.id).includes(searchString) &&
-                    setFilteredData((filteredData) => [...filteredData, e]),
-        )
+            trackers.forEach((e) =>
+                isNaN(Number(searchString))
+                    ? String(e.company).includes(searchString) &&
+                      setFilteredData((filteredData) => [...filteredData, e])
+                    : String(e.id).includes(searchString) &&
+                      setFilteredData((filteredData) => [...filteredData, e])
+            )
     }, [searchString, trackers])
     useEffect(() => {
         trackers && setFilteredData(trackers)
@@ -39,17 +36,23 @@ const SearchAndTableComponent = () => {
     if (trackers && filteredData && trackers.length > 0) {
         return (
             <>
-                {context.isLoggedIn ?
+                {context.isLoggedIn ? (
                     <div className="searchBarAndTitleStyle">
                         <SearchBarAndTitle setSearchString={setSearchString} />
                         <div className="mapAndGridStyle">
-                            <TrackerDataGrid data={filteredData} />
+                            <TrackerDataGrid
+                                data={filteredData}
+                                searching={
+                                    !isNaN(Number(searchString)) &&
+                                    searchString !== ''
+                                }
+                            />
                             <TrackerMap data={filteredData} />
                         </div>
-                    </div> :
-
+                    </div>
+                ) : (
                     history.push('login')
-                }
+                )}
             </>
         )
     }
@@ -57,4 +60,3 @@ const SearchAndTableComponent = () => {
 }
 
 export default withRouter(SearchAndTableComponent)
-

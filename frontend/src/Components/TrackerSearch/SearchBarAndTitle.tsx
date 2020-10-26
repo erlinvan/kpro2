@@ -21,7 +21,7 @@ const SearchBarAndTitle = ({ setSearchString }: props) => {
 
 const searchBarAndTitleStyle = {
     width: '59%',
-    marginLeft: '7px'
+    marginLeft: '7px',
 }
 
 export default SearchBarAndTitle
