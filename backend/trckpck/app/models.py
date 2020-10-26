@@ -87,6 +87,9 @@ class Package(models.Model):
             return items[0]['db_timestamp'], items[0]['reported']['GPS']
         return None, None
 
+    def __str__(self):
+        return self.company_owner.company_name + ' ➝ ' + self.tracker_id
+
 
 class Beacon(models.Model):
     """ This model will be relevant later when we add descriptions to beacons """
@@ -94,6 +97,9 @@ class Beacon(models.Model):
     description = models.CharField(max_length=200)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+
+    def __str__(self):
+        return 'beacon ' + self.id
 
 
 class AppUser(models.Model):
