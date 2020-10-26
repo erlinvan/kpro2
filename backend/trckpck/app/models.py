@@ -34,6 +34,7 @@ class Package(models.Model):
             self.add_beacon_description(item['reported']['beacon_data'])
             self.add_beacon_gps(item['reported']['beacon_data'])
             self.format_beacon_values(item['reported']['beacon_data'])
+            item['reported']['beacon_data'].sort(key=lambda b: b['timestamp'], reverse=True)
             payload = {
                 "id": self.tracker_id,
                 "time_stamp": item['db_timestamp'],
