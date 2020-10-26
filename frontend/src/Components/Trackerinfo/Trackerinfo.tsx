@@ -114,13 +114,19 @@ const Trackerinfo = () => {
                         </Box>
                     </Container>
                     <br></br>
-                    <Charts data={temperatureChart} />
-                    <Charts data={humidityChart} />
-                    <div className="historicWrapper">
-                        {trackerinfo && (
-                            <HistoricTrackerMap data={trackerinfo} />
-                        )}
-                    </div>
+                    <br></br>
+                    <Grid container spacing={1}>
+                        <Grid item xs={7}>
+                            <Charts data={temperatureChart} />
+                            <Charts data={humidityChart} />
+                        </Grid>
+                        <Grid item xs={4}>
+                            {trackerinfo && (
+                                <HistoricTrackerMap data={trackerinfo} />
+                            )}
+                        </Grid>
+                        <Grid item></Grid>
+                    </Grid>
                     \
                 </>
             ) : (
