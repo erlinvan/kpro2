@@ -83,7 +83,9 @@ class Package(models.Model):
             KeyConditionExpression=Key(settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
         )
         items = response.get('Items', [])
-        return items[0]['db_timestamp'], items[0]['reported']['GPS']
+        if len(items) > 0:
+            return items[0]['db_timestamp'], items[0]['reported']['GPS']
+        return None, None
 
 
 class Beacon(models.Model):

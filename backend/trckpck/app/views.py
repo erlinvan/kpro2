@@ -28,12 +28,13 @@ def get_user_data(request):
         packages_data = []
         for package in packages:
             timestamp, gps = package.get_latest_timestamp_and_position()
-            packages_data.append({
-                'id': package.id,
-                'timestamp': timestamp,
-                'company': package.company_owner.company_name,
-                'gps': gps
-            })
+            if timestamp and gps:
+                packages_data.append({
+                    'id': package.id,
+                    'timestamp': timestamp,
+                    'company': package.company_owner.company_name,
+                    'gps': gps
+                })
         packages_data.sort(key=lambda p: p['timestamp'], reverse=True)
         return JsonResponse(packages_data, safe=False)
 
@@ -52,12 +53,14 @@ def list_packages(company_id):
     packages_data = []
     for package in packages:
         timestamp, gps = package.get_latest_timestamp_and_position()
-        packages_data.append({
-            'id': package.id,
-            'timestamp': timestamp,
-            'gps': gps
-        })
-        packages_data.sort(key=lambda p: p['timestamp'], reverse=True)
+        if timestamp and gps:
+            packages_data.append({
+                'id': package.id,
+                'timestamp': timestamp,
+                'gps': gps
+            })
+
+    packages_data.sort(key=lambda p: p['timestamp'], reverse=True)
     return JsonResponse(packages_data, safe=False)
 
 
@@ -75,6 +78,7 @@ def get_packages_data_by_company_id(request, id):
     for package in packages:
         packages_data.append(package.get_package_data())
     return JsonResponse(packages_data, safe=False)
+
 
 def init_db(request):
     call_command('initdb')
