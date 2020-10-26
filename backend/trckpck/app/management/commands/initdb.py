@@ -40,13 +40,13 @@ class Command(BaseCommand):
                 company_owner=apple,
                 tracker_id='test'
             )
-            for i in range(12):
+            for i in range(13):
                 Package.objects.create(
                     company_owner=apple,
                     tracker_id=f'dummy_apple{i}'
                 )
 
-            for i in range(7):
+            for i in range(8):
                 Package.objects.create(
                     company_owner=komplett,
                     tracker_id=f'dummy_komplett{i}'
