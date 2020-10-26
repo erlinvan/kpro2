@@ -9,6 +9,7 @@ import ArrowDownwardIcon from '@material-ui/icons/ArrowBack'
 import { useHistory } from 'react-router-dom'
 import './TrackerInfo.css'
 import { Context } from '../../Context/ContextProvider'
+import HistoricTrackerMap from './HistoricTrackerMap'
 
 const Trackerinfo = () => {
     const context = useContext(Context)
@@ -20,7 +21,9 @@ const Trackerinfo = () => {
         maxTemperature: '',
         minTemperature: '',
     })
-    const { response: trackerinfo } = useFetch<ITrackerinfo[]>('tracker/?id=' + context.trackerID)
+    const { response: trackerinfo } = useFetch<ITrackerinfo[]>(
+        'tracker/?id=' + context.trackerID
+    )
     const [Temperature, setTemperature] = useState<number[]>([])
     const [Humidity, setHumidity] = useState<number[]>([])
     const [Timestamp, setTimestamp] = useState<string[]>([])
@@ -42,43 +45,50 @@ const Trackerinfo = () => {
             parseInt(beacondata.temperature),
         ])
         setHumidity((Humidity) => [...Humidity, parseInt(beacondata.humidity)])
-        setTimestamp((Timestamp) => [...Timestamp, beacondata.timestamp])
+        setTimestamp((Timestamp) => [
+            ...Timestamp,
+            beacondata.timestamp.split('.')[0],
+        ])
     }
     useEffect(() => {
         trackerinfo &&
-        trackerinfo.length !== 0 &&
-        trackerinfo.map((beacondata) =>
-            beacondata.beacon_data.map((e) => formatData(e)),
-        )
+            trackerinfo.length !== 0 &&
+            trackerinfo.map((beacondata) =>
+                beacondata.beacon_data.map((e) => formatData(e))
+            )
     }, [trackerinfo])
 
     useEffect(() => {
         trackerinfo &&
-        setCardData({
-            name: trackerinfo[0].id,
-            maxHumidity: Math.max.apply(Math, Humidity).toString(),
-            maxTemperature: Math.max.apply(Math, Temperature).toString(),
-            minHumidity: Math.min.apply(Math, Humidity).toString(),
-            minTemperature: Math.min.apply(Math, Temperature).toString(),
-        })
+            setCardData({
+                name: trackerinfo[0].id,
+                maxHumidity: Math.max.apply(Math, Humidity).toString(),
+                maxTemperature: Math.max.apply(Math, Temperature).toString(),
+                minHumidity: Math.min.apply(Math, Humidity).toString(),
+                minTemperature: Math.min.apply(Math, Temperature).toString(),
+            })
     }, [Temperature, Humidity, trackerinfo])
     return (
         <>
-            {context.isLoggedIn ?
+            {context.isLoggedIn ? (
                 <>
                     <Container>
                         <Box mt={5}>
                             <div className="backButtonAndCardWrapper">
-                                <IconButton aria-label="delete" onClick={() => {
-                                    history.push('trackers')
-                                }}>
+                                <IconButton
+                                    aria-label="delete"
+                                    onClick={() => {
+                                        history.push('trackers')
+                                    }}
+                                >
                                     <ArrowDownwardIcon fontSize="inherit" />
                                 </IconButton>
                                 <Card elevation={5} className="trackerInfoCard">
-
-
-                                    <Grid container xs={12}>
-                                        <CardInfo parameter="Name" value={cardData.name} />
+                                    <Grid container>
+                                        <CardInfo
+                                            parameter="Name"
+                                            value={cardData.name}
+                                        />
                                         <CardInfo
                                             parameter="Max Temperature"
                                             value={cardData.maxTemperature}
@@ -88,7 +98,7 @@ const Trackerinfo = () => {
                                             value={cardData.maxHumidity}
                                         />
                                     </Grid>
-                                    <Grid container xs={12}>
+                                    <Grid container>
                                         <Grid item xs={4}></Grid>
                                         <CardInfo
                                             parameter="Min Temperature"
@@ -100,18 +110,22 @@ const Trackerinfo = () => {
                                         />
                                     </Grid>
                                 </Card>
-
                             </div>
                         </Box>
-
                     </Container>
                     <br></br>
                     <Charts data={temperatureChart} />
-                    <Charts data={humidityChart} /></>
-                :
-
+                    <Charts data={humidityChart} />
+                    <div className="historicWrapper">
+                        {trackerinfo && (
+                            <HistoricTrackerMap data={trackerinfo} />
+                        )}
+                    </div>
+                    \
+                </>
+            ) : (
                 history.push('login')
-            }
+            )}
         </>
     )
 }

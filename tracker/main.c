@@ -78,11 +78,19 @@
 
 NRF_BLE_SCAN_DEF(m_scan);
 
+typedef struct {
+    uint64_t value : 48;
+} mac_address_t;
+
 const uint8_t address_prefix[4] = {0xac, 0x23, 0x3f, 0xa4};
 const uint8_t manufactor_specific_uuid[3] = {0x03, 0xe1, 0xff};
 
 #define FILE_ID 0x1234
 #define RECORD_KEY 0x1234
+
+static mac_address_t discovered_beacons[20] = { };
+static int discovered_beacon_count = 0;
+
 
 static const ble_gap_scan_params_t m_scan_param =
 {
@@ -323,6 +331,39 @@ static bool data_match_uuid(const ble_data_t data) {
     return false;
 }
 
+// Extract MAC address from beacon data
+static mac_address_t extract_mac_address(ble_data_t data) {
+    mac_address_t mac_address = {data.p_data[18] << 20 |
+                                data.p_data[19] << 16 |
+                                data.p_data[20] << 12 |
+                                data.p_data[21] << 8  |
+                                data.p_data[22] << 4  |
+                                data.p_data[23]};
+    return mac_address;
+}
+
+// Add new beacon to the discovered_beacons array
+static void add_beacon_to_discovered_beacons(mac_address_t mac_address) {
+    discovered_beacons[discovered_beacon_count] = mac_address;
+}
+
+// Check if the MAC addressed has been discovered from before. If no, add the incoming address to
+// discovered_beacons.
+static bool is_new_beacon(const ble_data_t data) {
+    mac_address_t mac_address = extract_mac_address(data);
+    for (int i = 0; i < sizeof(discovered_beacons) / sizeof(discovered_beacons[0]); i++) {
+        if (memcmp(&discovered_beacons[i], &mac_address, 6) == 0) {
+            printf("\n\r Beacon already discovered \n\r");
+            printf("%d", discovered_beacon_count);
+            return false;
+            }
+        }
+    printf("\n\r New beacon! \n\r");
+    add_beacon_to_discovered_beacons(mac_address);
+    discovered_beacon_count++;
+    return true;
+}
+
 // 8.8 fixed point byte representation to float
 static float hex_to_float(const uint8_t integer, const uint8_t decimal){
    const float aftercomma = (float)decimal/256.0;
@@ -354,8 +395,9 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
     if (address_match_prefix(p_scan_evt->params.filter_match.p_adv_report->peer_addr.addr) &&
         data_match_frametype(p_scan_evt->params.filter_match.p_adv_report->data) &&
         data_match_uuid(p_scan_evt->params.filter_match.p_adv_report->data) &&
-        mac_address_location_match(p_scan_evt->params.filter_match.p_adv_report)) {
-        printf("\r\nFound minew device\r\n");
+        mac_address_location_match(p_scan_evt->params.filter_match.p_adv_report) &&
+        is_new_beacon(p_scan_evt->params.filter_match.p_adv_report->data)) {
+        printf("\r\nFound new minew device\r\n");
     } else {
         return;
     }
@@ -377,6 +419,7 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
     print_humidity(humidity_value);
 
     printf("\r\nrssi: %d\r\n", p_scan_evt->params.filter_match.p_adv_report->rssi);
+    printf("\n\r beacons found: %d \n\r", discovered_beacons[0]);
     print_manufacturer_data(p_scan_evt->params.filter_match.p_adv_report);
 }
 

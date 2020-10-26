@@ -8,3 +8,16 @@
     align-items: center;
     width:95%;
 }
+
+.leaflet-container {
+    width: 1000px;
+    height: 700px;
+    margin-top: 52px;
+
+}
+.historicWrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
