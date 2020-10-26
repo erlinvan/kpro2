@@ -40,6 +40,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "nrf_delay.h"
 #include "nordic_common.h"
 #include "nrf.h"
 #include "ble_advertising.h"
@@ -86,6 +87,12 @@ const uint8_t manufactor_specific_uuid[3] = {0x03, 0xe1, 0xff};
 static mac_address_t discovered_beacons[20] = { };
 static int discovered_beacon_count = 0;
 
+static int fault_counter = 0;
+static int fault_treshold = 5;
+
+// TODO: Remove flash_storage_counter and flash_storage_capacity
+static int flash_storage_counter = 0;
+static int flash_storage_capacity = 15;
 
 static const ble_gap_scan_params_t m_scan_param =
 {
@@ -187,7 +194,51 @@ static void log_init(void) {
 }
 
 
+// TODO: Implement with flash storage access
+static void print_from_flash_storage() {
+    printf("\n printing %d elements from flash storage \r\n", flash_storage_counter);
+}
+
+
+//TODO: Implement with flash storage access
+static bool memory_is_full() {
+    return flash_storage_counter >= flash_storage_capacity;
+}
+
+//TODO: Imeplement with flash storage access
+static void wipe_memory() {
+    flash_storage_counter = 0;
+    printf("\r\n Wiping memory.. \r\n");
+}
+
+
 static void idle_state_handle(void) {
+    nrf_ble_scan_start(&m_scan);
+    nrf_delay_ms(5000);
+
+    nrf_ble_scan_stop();
+    if (discovered_beacon_count == 0) {
+        fault_counter++;
+        if (fault_counter >= fault_treshold) {
+            print_from_flash_storage();
+        }
+    }
+    else {
+        fault_counter = 0;    
+        //TODO: Remove the rest of this else statement, only for testing purposes
+        flash_storage_counter += discovered_beacon_count;
+    }
+
+    // TODO: implement memory_is_full
+    if (memory_is_full()) {
+        printf("\r\n Memory is full.. Printing from flash storage \r\n");
+        print_from_flash_storage();
+        wipe_memory();
+    }
+
+    discovered_beacon_count = 0;
+    nrf_delay_ms(5000);
+
     NRF_LOG_FLUSH();
     // If threre is no pending log, sleep until next event
     if (NRF_LOG_PROCESS() == false) {
@@ -327,10 +378,9 @@ static void add_beacon_to_discovered_beacons(mac_address_t mac_address) {
 // discovered_beacons.
 static bool is_new_beacon(const ble_data_t data) {
     mac_address_t mac_address = extract_mac_address(data);
-    for (int i = 0; i < sizeof(discovered_beacons) / sizeof(discovered_beacons[0]); i++) {
+    for (int i = 0; i < discovered_beacon_count; i++) {
         if (memcmp(&discovered_beacons[i], &mac_address, 6) == 0) {
-            printf("\n\r Beacon already discovered \n\r");
-            printf("%d", discovered_beacon_count);
+            printf("\n\r Beacon already discovered. Now %d in tottal \n\r", discovered_beacon_count);
             return false;
             }
         }
@@ -374,6 +424,7 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
         mac_address_location_match(p_scan_evt->params.filter_match.p_adv_report) &&
         is_new_beacon(p_scan_evt->params.filter_match.p_adv_report->data)) {
         printf("\r\nFound new minew device\r\n");
+        // Write [mac_address, temperature, humidity, timestamp] to flash memory
     } else {
         return;
     }
@@ -387,6 +438,7 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
     const float temperature_value = extract_temperature(p_scan_evt->params.filter_match.p_adv_report->data);
     const float humidity_value = extract_humidity(p_scan_evt->params.filter_match.p_adv_report->data);
     
+    /*
     print_data(p_scan_evt->params.filter_match.p_adv_report->data);
     print_address(p_scan_evt->params.filter_match.p_adv_report);
     print_name(p_scan_evt->params.filter_match.p_adv_report);
@@ -395,8 +447,8 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
     print_humidity(humidity_value);
 
     printf("\r\nrssi: %d\r\n", p_scan_evt->params.filter_match.p_adv_report->rssi);
-    printf("\n\r beacons found: %d \n\r", discovered_beacons[0]);
     print_manufacturer_data(p_scan_evt->params.filter_match.p_adv_report);
+    */
 }
 
 
@@ -466,6 +518,7 @@ static void gpio_init(void) {
 }
 
 
+
 int main(void) {
     uart_init();
     log_init();
@@ -476,6 +529,8 @@ int main(void) {
     scan_init();
 
     scan_start();
+
+    //fault_counter_init(); See https://atadiat.com/en/e-how-to-preserve-a-variable-in-ram-between-software-resets/
 
     printf("\r\nEnter main loop\r\n");
     for (;;) {
