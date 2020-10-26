@@ -37,6 +37,7 @@ class Package(models.Model):
             item['reported']['beacon_data'].sort(key=lambda b: b['timestamp'], reverse=True)
             payload = {
                 "id": self.tracker_id,
+                "battery_percentage": float(item['reported']['battery_percentage']),
                 "time_stamp": item['db_timestamp'],
                 "gps": item['reported']['GPS'],
                 "company_owner": self.company_owner.company_name,
