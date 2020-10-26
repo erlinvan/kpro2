@@ -32,9 +32,12 @@ class Package(models.Model):
 
         for item in items:
             self.add_beacon_description(item['reported']['beacon_data'])
+            self.add_beacon_gps(item['reported']['beacon_data'])
             self.format_beacon_values(item['reported']['beacon_data'])
+            item['reported']['beacon_data'].sort(key=lambda b: b['timestamp'], reverse=True)
             payload = {
                 "id": self.tracker_id,
+                "battery_percentage": float(item['reported']['battery_percentage']),
                 "time_stamp": item['db_timestamp'],
                 "gps": item['reported']['GPS'],
                 "company_owner": self.company_owner.company_name,
@@ -47,6 +50,17 @@ class Package(models.Model):
         for b in beacon_data:
             b["temperature"] = float(b['temperature'])
             b["humidity"] = float(b['humidity'])
+
+    def add_beacon_gps(self, beacon_data):
+        for b in beacon_data:
+            try:
+                beacon_latitude = Beacon.objects.get(id=b['beacon_id']).latitude
+                beacon_longitude = Beacon.objects.get(id=b['beacon_id']).longitude
+                if beacon_latitude and beacon_longitude:
+                    b['latitude'] = beacon_latitude
+                    b['longitude'] = beacon_longitude
+            except Beacon.DoesNotExist:
+                pass
 
     def add_beacon_description(self, beacon_data):
         for b in beacon_data:
@@ -70,13 +84,23 @@ class Package(models.Model):
             KeyConditionExpression=Key(settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
         )
         items = response.get('Items', [])
-        return items[0]['db_timestamp'], items[0]['reported']['GPS']
+        if len(items) > 0:
+            return items[0]['db_timestamp'], items[0]['reported']['GPS']
+        return None, None
+
+    def __str__(self):
+        return self.company_owner.company_name + ' ➝ ' + self.tracker_id
 
 
 class Beacon(models.Model):
     """ This model will be relevant later when we add descriptions to beacons """
     id = models.CharField(max_length=200, primary_key=True)
     description = models.CharField(max_length=200)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+
+    def __str__(self):
+        return 'beacon ' + self.id
 
 
 class AppUser(models.Model):

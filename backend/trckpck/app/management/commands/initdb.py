@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from trckpck.app.models import Package, Company, AppUser
+from trckpck.app.models import Package, Company, AppUser, Beacon
 
 class Command(BaseCommand):
     help = 'Fills the database with some dummy data'
@@ -57,6 +57,14 @@ class Command(BaseCommand):
                     company_owner=fjellsport,
                     tracker_id=f'dummy_fjellsport{i}'
                 )
+
+            # Create beacons
+            Beacon.objects.create(
+                id='789',
+                description='Beacon 789 description',
+                latitude=63.422588,
+                longitude=10.424960
+            )
 
             # Add permissions
             apple.appuser_set.add(user)
