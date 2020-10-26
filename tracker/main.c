@@ -81,8 +81,8 @@ NRF_BLE_SCAN_DEF(m_scan);
 const uint8_t address_prefix[4] = {0xac, 0x23, 0x3f, 0xa4};
 const uint8_t manufactor_specific_uuid[3] = {0x03, 0xe1, 0xff};
 
-#define FILE_ID 0x0001
-#define RECORD_KEY 0x1111
+#define FILE_ID 0x1234
+#define RECORD_KEY 0x1234
 
 static const ble_gap_scan_params_t m_scan_param =
 {
@@ -97,9 +97,21 @@ static const ble_gap_scan_params_t m_scan_param =
 
 static bool scanning = false;
 
+static uint8_t test_str[] = "abcdefgh";
+
+
+static ret_code_t handle_error(ret_code_t ret_code) {
+    APP_ERROR_CHECK(ret_code);
+    if (ret_code != NRF_SUCCESS) {
+        printf("\r\nError!\r\n");
+    }
+
+    return ret_code;
+}
+
 
 static void timers_init(void) {
-    APP_ERROR_CHECK(
+    handle_error(
         app_timer_init()
     );
 }
@@ -107,31 +119,31 @@ static void timers_init(void) {
 
 static void sleep_mode_enter(void) {
     // Prepare wakeup buttons.
-    APP_ERROR_CHECK(
+    handle_error(
         bsp_btn_ble_sleep_mode_prepare()
     );
 
     // Go to system-off mode (this function will not return; wakeup will cause a reset).
-    APP_ERROR_CHECK(
+    handle_error(
         sd_power_system_off()
     );
 }
 
 
 static void ble_stack_init(void) {
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_sdh_enable_request()
     );
 
     // Configure the BLE stack using the default settings.
     // Fetch the start address of the application RAM.
     uint32_t ram_start = 0;
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_sdh_ble_default_cfg_set(APP_BLE_CONN_CFG_TAG, &ram_start)
     );
 
     // Enable BLE stack.
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_sdh_ble_enable(&ram_start)
     );
 }
@@ -171,12 +183,12 @@ static void uart_init(void) {
         APP_IRQ_PRIORITY_LOWEST,
         err_code
     );
-    APP_ERROR_CHECK(err_code);
+    handle_error(err_code);
 }
 
 
 static void log_init(void) {
-    APP_ERROR_CHECK(
+    handle_error(
         NRF_LOG_INIT(NULL)
     );
 
@@ -195,7 +207,7 @@ static void idle_state_handle(void) {
 
 
 static void power_management_init(void) {
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_pwr_mgmt_init()
     );
 }
@@ -203,7 +215,7 @@ static void power_management_init(void) {
 
 static void scan_start(void) {
     printf("\r\nStarting scan.\r\n");
-    APP_ERROR_CHECK(nrf_ble_scan_start(&m_scan));
+    handle_error(nrf_ble_scan_start(&m_scan));
 }
 
 static bool address_match_prefix(const uint8_t *address) {
@@ -377,16 +389,38 @@ static void scan_init(void) {
     init_scan.connect_if_match = false;
     init_scan.conn_cfg_tag = APP_BLE_CONN_CFG_TAG;
 
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_ble_scan_init(&m_scan, &init_scan, scan_evt_handler)
     );
 }
 
 
 static void fds_evt_handler(fds_evt_t const * p_fds_evt) {
-    if (p_fds_evt->id == FDS_EVT_INIT) {
-        APP_ERROR_CHECK(p_fds_evt->result);
+    handle_error(p_fds_evt->result);
+
+    // if (p_fds_evt->id == FDS_EVT_INIT) {
+    //     handle_error(p_fds_evt->result);
+    // }
+
+    printf("\r\nfds_evt_handler\r\n");
+}
+
+
+
+
+
+static void print_flash_data(const uint8_t *data, const size_t length_words) {
+    printf("\r\n");
+    for (size_t i = 0; i < length_words; i++) {
+        printf(
+            "%c%c%c%c",
+            ((uint8_t *)data)[i*4 + 0],
+            ((uint8_t *)data)[i*4 + 1],
+            ((uint8_t *)data)[i*4 + 2],
+            ((uint8_t *)data)[i*4 + 3]
+        );
     }
+    printf("\r\n");
 }
 
 
@@ -397,41 +431,44 @@ static void write_to_flash(const uint8_t *data, const size_t length) {
         .data.p_data = data,
         .data.length_words = length
     };
-    fds_record_desc_t record_desc;
 
-    APP_ERROR_CHECK(
-        fds_record_write(&record_desc, &record)
-    );
+    fds_record_desc_t record_desc;
+    fds_find_token_t ftok = {0};
+
+    printf("\r\nWriting data to flash:\r\n");
+    print_flash_data(record.data.p_data, record.data.length_words);
+
+    if (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
+        handle_error(
+            fds_record_update(&record_desc, &record)
+        );
+    } else {
+        handle_error(
+            fds_record_write(&record_desc, &record)
+        );
+    }
 }
 
 
 static void read_from_flash() {
     fds_flash_record_t  flash_record;
     fds_record_desc_t   record_desc;
-    fds_find_token_t    ftok;
+    fds_find_token_t    ftok = {0};
     /* It is required to zero the token before first use. */
-    memset(&ftok, 0x00, sizeof(fds_find_token_t));
+    //memset(&ftok, 0x00, sizeof(fds_find_token_t));
     /* Loop until all records with the given key and file ID have been found. */
-    if (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
-        APP_ERROR_CHECK(
+    while (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
+        handle_error(
             fds_record_open(&record_desc, &flash_record)
         );
 
-        printf("\r\n");
-        for (size_t i = 0; i < flash_record.p_header->length_words; i++) {
-            printf(
-                "%c%c%c%c",
-                ((uint8_t *)flash_record.p_data)[i*4 + 0],
-                ((uint8_t *)flash_record.p_data)[i*4 + 1],
-                ((uint8_t *)flash_record.p_data)[i*4 + 2],
-                ((uint8_t *)flash_record.p_data)[i*4 + 3]
-            );
-        }
-        printf("\r\n");
+        printf("\r\nReading data from flash:\r\n");
+        printf("\r\n%c\r\n", *(uint8_t *)flash_record.p_data);
+        print_flash_data(flash_record.p_data, flash_record.p_header->length_words);
 
         /* Access the record through the flash_record structure. */
         /* Close the record when done. */
-        APP_ERROR_CHECK(
+        handle_error(
             fds_record_close(&record_desc)
         );
     }
@@ -439,10 +476,10 @@ static void read_from_flash() {
 
 
 static void flash_storage_init(void) {
-    APP_ERROR_CHECK(
+    handle_error(
         fds_register(fds_evt_handler)
     );
-    APP_ERROR_CHECK(
+    handle_error(
         fds_init()
     );
 }
@@ -468,8 +505,25 @@ void button_1_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
     printf("\r\nButton 1 press\r\n");
 
     const uint8_t test_data[] = "abcdefgh";
-    write_to_flash(test_data, 2);
+    write_to_flash(test_str, 2);
+
+    // const uint8_t test_data2[] = "zywvulkajfhvskdjfhbjhqhbqwjkbqe";
+    // write_to_flash(test_data2, 7);
+    // read_from_flash();
+
+    // TODO figure out how sleep mode works
+    //sleep_mode_enter();
+}
+
+
+void button_2_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
+    printf("\r\nButton 2 press\r\n");
+
     read_from_flash();
+
+    // const uint8_t test_data2[] = "zywvulkajfhvskdjfhbjhqhbqwjkbqe";
+    // write_to_flash(test_data2, 7);
+    // read_from_flash();
 
     // TODO figure out how sleep mode works
     //sleep_mode_enter();
@@ -477,13 +531,13 @@ void button_1_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
 
 
 static void gpio_init(void) {
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_drv_gpiote_init()
     );
 
     // Enable led 0
     nrf_drv_gpiote_out_config_t out_config = GPIOTE_CONFIG_OUT_SIMPLE(false);
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_drv_gpiote_out_init(BSP_LED_0, &out_config)
     );
 
@@ -492,16 +546,22 @@ static void gpio_init(void) {
     in_config.pull = NRF_GPIO_PIN_PULLUP;
 
     // Eanble button 0
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_drv_gpiote_in_init(BSP_BUTTON_0, &in_config, button_0_handler)
     );
     nrf_drv_gpiote_in_event_enable(BSP_BUTTON_0, true);
 
     // Enable button 1
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_drv_gpiote_in_init(BSP_BUTTON_1, &in_config, button_1_handler)
     );
     nrf_drv_gpiote_in_event_enable(BSP_BUTTON_1, true);
+
+    // Enable button 2
+    handle_error(
+        nrf_drv_gpiote_in_init(BSP_BUTTON_2, &in_config, button_2_handler)
+    );
+    nrf_drv_gpiote_in_event_enable(BSP_BUTTON_2, true);
 }
 
 
