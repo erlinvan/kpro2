@@ -40,6 +40,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <time.h>
 #include "nordic_common.h"
 #include "nrf.h"
 #include "ble_advertising.h"
@@ -78,18 +79,27 @@
 
 NRF_BLE_SCAN_DEF(m_scan);
 
-typedef struct {
-    uint64_t value : 48;
-} mac_address_t;
-
 const uint8_t address_prefix[4] = {0xac, 0x23, 0x3f, 0xa4};
 const uint8_t manufactor_specific_uuid[3] = {0x03, 0xe1, 0xff};
 
 #define FILE_ID 0x1234
 #define RECORD_KEY 0x1234
 
-static mac_address_t discovered_beacons[20] = { };
-static int discovered_beacon_count = 0;
+#define BEACON_DATA_CAPACITY 32
+
+typedef struct {
+    uint8_t bytes[6];
+} mac_address_t;
+
+typedef struct {
+    mac_address_t mac_address;
+    float temperature;
+    float humidity;
+    uint32_t timestamp;
+} beacon_data_t;
+
+static beacon_data_t beacon_data[BEACON_DATA_CAPACITY] = {};
+static size_t beacon_data_size = 0;
 
 
 static const ble_gap_scan_params_t m_scan_param =
@@ -104,8 +114,6 @@ static const ble_gap_scan_params_t m_scan_param =
 };
 
 static bool scanning = false;
-
-static uint8_t test_str[] = "abcdefgh";
 
 
 static ret_code_t handle_error(ret_code_t ret_code) {
@@ -333,34 +341,28 @@ static bool data_match_uuid(const ble_data_t data) {
 
 // Extract MAC address from beacon data
 static mac_address_t extract_mac_address(ble_data_t data) {
-    mac_address_t mac_address = {data.p_data[18] << 20 |
-                                data.p_data[19] << 16 |
-                                data.p_data[20] << 12 |
-                                data.p_data[21] << 8  |
-                                data.p_data[22] << 4  |
-                                data.p_data[23]};
+    mac_address_t mac_address;
+    memcpy(&mac_address, &data.p_data[18], 6);
     return mac_address;
 }
-
-// Add new beacon to the discovered_beacons array
-static void add_beacon_to_discovered_beacons(mac_address_t mac_address) {
-    discovered_beacons[discovered_beacon_count] = mac_address;
-}
+//
+// // Add new beacon to the discovered_beacons array
+// static void add_beacon_to_discovered_beacons(mac_address_t mac_address) {
+//     discovered_beacons[discovered_beacon_count] = mac_address;
+// }
 
 // Check if the MAC addressed has been discovered from before. If no, add the incoming address to
 // discovered_beacons.
 static bool is_new_beacon(const ble_data_t data) {
     mac_address_t mac_address = extract_mac_address(data);
-    for (int i = 0; i < sizeof(discovered_beacons) / sizeof(discovered_beacons[0]); i++) {
-        if (memcmp(&discovered_beacons[i], &mac_address, 6) == 0) {
+    for (int i = 0; i < beacon_data_size; i++) {
+        if (memcmp(&beacon_data[i].mac_address, &mac_address, 6) == 0) {
             printf("\n\r Beacon already discovered \n\r");
-            printf("%d", discovered_beacon_count);
+            // printf("%d", discovered_beacon_count);
             return false;
             }
         }
     printf("\n\r New beacon! \n\r");
-    add_beacon_to_discovered_beacons(mac_address);
-    discovered_beacon_count++;
     return true;
 }
 
@@ -391,6 +393,21 @@ static const float extract_humidity(const ble_data_t data){
 }
 
 
+static bool save_beacon_data(mac_address_t mac_address, float temperature, float humidity) {
+    if (beacon_data_size == BEACON_DATA_CAPACITY) {
+        return false;
+    }
+
+    memcpy(&beacon_data[beacon_data_size].mac_address, &mac_address, 6);
+    beacon_data[beacon_data_size].temperature = temperature;
+    beacon_data[beacon_data_size].humidity = humidity;
+    beacon_data[beacon_data_size].timestamp = time(NULL);
+    beacon_data_size += 1;
+
+    return true;
+}
+
+
 static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
     if (address_match_prefix(p_scan_evt->params.filter_match.p_adv_report->peer_addr.addr) &&
         data_match_frametype(p_scan_evt->params.filter_match.p_adv_report->data) &&
@@ -408,19 +425,32 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
         return;
     }
 
-    const float temperature_value = extract_temperature(p_scan_evt->params.filter_match.p_adv_report->data);
-    const float humidity_value = extract_humidity(p_scan_evt->params.filter_match.p_adv_report->data);
+    const mac_address_t mac_address = extract_mac_address(
+        p_scan_evt->params.filter_match.p_adv_report->data
+    );
+    const float temperature = extract_temperature(
+        p_scan_evt->params.filter_match.p_adv_report->data
+    );
+    const float humidity = extract_humidity(
+        p_scan_evt->params.filter_match.p_adv_report->data
+    );
 
-    print_data(p_scan_evt->params.filter_match.p_adv_report->data);
+    print_temperature(temperature);
+    print_humidity(humidity);
+
+    // print_data(p_scan_evt->params.filter_match.p_adv_report->data);
     print_address(p_scan_evt->params.filter_match.p_adv_report);
-    print_name(p_scan_evt->params.filter_match.p_adv_report);
+    // print_name(p_scan_evt->params.filter_match.p_adv_report);
 
-    print_temperature(temperature_value);
-    print_humidity(humidity_value);
+    save_beacon_data(
+        mac_address,
+        temperature,
+        humidity
+    );
 
-    printf("\r\nrssi: %d\r\n", p_scan_evt->params.filter_match.p_adv_report->rssi);
-    printf("\n\r beacons found: %d \n\r", discovered_beacons[0]);
-    print_manufacturer_data(p_scan_evt->params.filter_match.p_adv_report);
+    // printf("\r\nrssi: %d\r\n", p_scan_evt->params.filter_match.p_adv_report->rssi);
+    // printf("\n\r beacons found: %d \n\r", discovered_beacons[0]);
+    // print_manufacturer_data(p_scan_evt->params.filter_match.p_adv_report);
 }
 
 
@@ -441,15 +471,8 @@ static void scan_init(void) {
 static void fds_evt_handler(fds_evt_t const * p_fds_evt) {
     handle_error(p_fds_evt->result);
 
-    // if (p_fds_evt->id == FDS_EVT_INIT) {
-    //     handle_error(p_fds_evt->result);
-    // }
-
     printf("\r\nfds_evt_handler\r\n");
 }
-
-
-
 
 
 static void print_flash_data(const uint8_t *data, const size_t length_words) {
@@ -471,7 +494,7 @@ static void write_to_flash(const uint8_t *data, const size_t length) {
     const fds_record_t record = {
         .file_id = FILE_ID,
         .key = RECORD_KEY,
-        .data.p_data = data,
+        .data.p_data = beacon_data,
         .data.length_words = length
     };
 
@@ -479,7 +502,7 @@ static void write_to_flash(const uint8_t *data, const size_t length) {
     fds_find_token_t ftok = {0};
 
     printf("\r\nWriting data to flash:\r\n");
-    print_flash_data(record.data.p_data, record.data.length_words);
+    // print_flash_data(record.data.p_data, record.data.length_words);
 
     if (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
         handle_error(
@@ -497,20 +520,23 @@ static void read_from_flash() {
     fds_flash_record_t  flash_record;
     fds_record_desc_t   record_desc;
     fds_find_token_t    ftok = {0};
-    /* It is required to zero the token before first use. */
-    //memset(&ftok, 0x00, sizeof(fds_find_token_t));
-    /* Loop until all records with the given key and file ID have been found. */
-    while (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
+
+    if (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
         handle_error(
             fds_record_open(&record_desc, &flash_record)
         );
 
         printf("\r\nReading data from flash:\r\n");
-        printf("\r\n%c\r\n", *(uint8_t *)flash_record.p_data);
-        print_flash_data(flash_record.p_data, flash_record.p_header->length_words);
+        // printf("\r\n%c\r\n", *(uint8_t *)flash_record.p_data);
+        // print_flash_data(flash_record.p_data, flash_record.p_header->length_words);
 
-        /* Access the record through the flash_record structure. */
-        /* Close the record when done. */
+        memcpy(
+            beacon_data,
+            flash_record.p_data,
+            sizeof(beacon_data_t)*flash_record.p_header->length_words / 6
+        );
+        beacon_data_size = flash_record.p_header->length_words / 6;
+
         handle_error(
             fds_record_close(&record_desc)
         );
@@ -546,13 +572,7 @@ void button_0_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
 
 void button_1_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
     printf("\r\nButton 1 press\r\n");
-
-    const uint8_t test_data[] = "abcdefgh";
-    write_to_flash(test_str, 2);
-
-    // const uint8_t test_data2[] = "zywvulkajfhvskdjfhbjhqhbqwjkbqe";
-    // write_to_flash(test_data2, 7);
-    // read_from_flash();
+    write_to_flash((void *)beacon_data, beacon_data_size*6);
 
     // TODO figure out how sleep mode works
     //sleep_mode_enter();
@@ -564,9 +584,28 @@ void button_2_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
 
     read_from_flash();
 
-    // const uint8_t test_data2[] = "zywvulkajfhvskdjfhbjhqhbqwjkbqe";
-    // write_to_flash(test_data2, 7);
-    // read_from_flash();
+    // TODO figure out how sleep mode works
+    //sleep_mode_enter();
+}
+
+
+void button_3_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
+    printf("\r\nButton 3 press\r\n");
+
+    for (size_t i = 0; i < beacon_data_size; i++) {
+        printf(
+            "\r\n[0x%02x%02x%02x%02x%02x%02x, %f, %f, %ld]\r\n",
+            beacon_data[i].mac_address.bytes[5],
+            beacon_data[i].mac_address.bytes[4],
+            beacon_data[i].mac_address.bytes[3],
+            beacon_data[i].mac_address.bytes[2],
+            beacon_data[i].mac_address.bytes[1],
+            beacon_data[i].mac_address.bytes[0],
+            beacon_data[i].temperature,
+            beacon_data[i].humidity,
+            beacon_data[i].timestamp
+        );
+    }
 
     // TODO figure out how sleep mode works
     //sleep_mode_enter();
@@ -605,6 +644,12 @@ static void gpio_init(void) {
         nrf_drv_gpiote_in_init(BSP_BUTTON_2, &in_config, button_2_handler)
     );
     nrf_drv_gpiote_in_event_enable(BSP_BUTTON_2, true);
+
+    // Enable button 3
+    handle_error(
+        nrf_drv_gpiote_in_init(BSP_BUTTON_3, &in_config, button_3_handler)
+    );
+    nrf_drv_gpiote_in_event_enable(BSP_BUTTON_3, true);
 }
 
 
