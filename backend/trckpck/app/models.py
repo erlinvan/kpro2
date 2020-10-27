@@ -24,7 +24,7 @@ class Package(models.Model):
         table = dynamodb.Table(settings.DATA_TABLE)
         response = table.query(
             IndexName='thing_name-db_timestamp-index',
-            ScanIndexForward=False,
+            ScanIndexForward=True,
             KeyConditionExpression=Key(settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
         )
         items = response.get('Items', [])
@@ -34,7 +34,7 @@ class Package(models.Model):
             self.add_beacon_description(item['reported']['beacon_data'])
             self.add_beacon_gps(item['reported']['beacon_data'])
             self.format_beacon_values(item['reported']['beacon_data'])
-            item['reported']['beacon_data'].sort(key=lambda b: b['timestamp'], reverse=True)
+            item['reported']['beacon_data'].sort(key=lambda b: b['timestamp'], reverse=False)
             payload = {
                 "id": self.tracker_id,
                 "battery_percentage": float(item['reported']['battery_percentage']),
