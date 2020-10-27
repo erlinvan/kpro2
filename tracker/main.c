@@ -127,7 +127,7 @@ static size_t timer_counter = 0;
 static ret_code_t handle_error(ret_code_t ret_code) {
     APP_ERROR_CHECK(ret_code);
     if (ret_code != NRF_SUCCESS) {
-        // printf("\r\nError!\r\n");
+        // app_uart_put('e');
     }
 
     return ret_code;
@@ -483,26 +483,26 @@ static void clear_beacon_data(void) {
 
 
 static void print_clear_beacon_data(void) {
-    printf("[");
+    char string_buffer[128];
+    int string_length;
     for (size_t i = 0; i < beacon_data_size; i++) {
-        printf(
-            "[%hu,%f,%f,%ld]",
-            // TODO: Figure out how mac_address should be sendt
-            // beacon_data[i].mac_address.bytes[5],
-            // beacon_data[i].mac_address.bytes[4],
-            // beacon_data[i].mac_address.bytes[3],
-            // beacon_data[i].mac_address.bytes[2],
-            // beacon_data[i].mac_address.bytes[1],
+        string_length = sprintf(
+            string_buffer,
+            "[\"0x%02x%02x%02x%02x%02x%02x\",%0.4f,%0.4f,%ld]",
+            beacon_data[i].mac_address.bytes[5],
+            beacon_data[i].mac_address.bytes[4],
+            beacon_data[i].mac_address.bytes[3],
+            beacon_data[i].mac_address.bytes[2],
+            beacon_data[i].mac_address.bytes[1],
             beacon_data[i].mac_address.bytes[0],
             beacon_data[i].temperature,
             beacon_data[i].humidity,
             beacon_data[i].timestamp
         );
-        if (i != beacon_data_size - 1) {
-            printf(",");
+        for (size_t j = 0; j < string_length; j++) {
+            app_uart_put(string_buffer[j]);
         }
     }
-    printf("]\r\n");
 
     clear_beacon_data();
 }
@@ -577,8 +577,6 @@ static void print_clear_beacon_data(void) {
 
 
 void timer_evt_handler(nrf_timer_event_t event, void *p_context) {
-    // printf("\r\nTimer\r\n");
-
     timer_counter = (timer_counter + 1) % TIMER_SCAN_INTERVAL;
 
     if (timer_counter == 0) {
@@ -741,11 +739,14 @@ int main(void) {
     timer_init();
     uart_init();
     log_init();
-    // gpio_init();
+    // // gpio_init();
     power_management_init();
+    // app_uart_put('x');
+    // app_uart_put('\r');
+    // app_uart_put('\n');
 
     ble_stack_init();
-    scan_init();
+    scan_init();//
     // flash_storage_init();
     // app_timer_init();
 
