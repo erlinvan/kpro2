@@ -57,6 +57,7 @@
 #include "nrf_ble_scan.h"
 #include "nrf_drv_timer.h"
 //#include "nrfx_timer.h"
+#include "nrf_delay.h"
 
 #if defined (UART_PRESENT)
 #include "nrf_uart.h"
@@ -71,6 +72,14 @@
 
 #define UART_TX_BUF_SIZE 256
 #define UART_RX_BUF_SIZE 256
+#define UART_HWFC APP_UART_FLOW_CONTROL_DISABLED
+
+ #define TRACKER_RX_PIN_NUMBER NRF_GPIO_PIN_MAP(0,12)
+ #define TRACKER_TX_PIN_NUMBER NRF_GPIO_PIN_MAP(0,14)
+ #define TRACKER_CTS_PIN_NUMBER NRF_GPIO_PIN_MAP(0,15)
+ #define TRACKER_RTS_PIN_NUMBER NRF_GPIO_PIN_MAP(0,16)
+
+
 
 // Tag for identifying SoftDevice BLE configuration
 #define APP_BLE_CONN_CFG_TAG 1
@@ -178,10 +187,10 @@ void uart_error_handle(app_uart_evt_t * p_event) {
 static void uart_init(void) {
     app_uart_comm_params_t const comm_params =
     {
-        .rx_pin_no    = RX_PIN_NUMBER,
-        .tx_pin_no    = TX_PIN_NUMBER,
-        .rts_pin_no   = RTS_PIN_NUMBER,
-        .cts_pin_no   = CTS_PIN_NUMBER,
+        .rx_pin_no    = TRACKER_RX_PIN_NUMBER,
+        .tx_pin_no    = TRACKER_TX_PIN_NUMBER,
+        .rts_pin_no   = TRACKER_RTS_PIN_NUMBER,
+        .cts_pin_no   = TRACKER_CTS_PIN_NUMBER,
         .flow_control = APP_UART_FLOW_CONTROL_DISABLED,
         .use_parity   = false,
 #if defined (UART_PRESENT)
@@ -739,7 +748,21 @@ int main(void) {
     timer_init();
     uart_init();
     log_init();
-    // // gpio_init();
+    app_uart_flush();
+    nrf_delay_ms(4000);
+    app_uart_put('[');
+    app_uart_put('a');
+    app_uart_put(']');
+    app_uart_put('[');
+    app_uart_put('a');
+    app_uart_put(']');
+    app_uart_put('[');
+    app_uart_put('a');
+    app_uart_put(']');
+
+
+    nrf_delay_ms(3000);
+    // gpio_init();
     power_management_init();
     // app_uart_put('x');
     // app_uart_put('\r');
