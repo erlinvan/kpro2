@@ -3,7 +3,12 @@ import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
 import { ICharts } from '../../Interfaces/IChart'
 
-const Charts = (props: ICharts) => {
+interface chartProps {
+    data: ICharts
+    setChosenTracker: any
+}
+
+const Charts = (props: chartProps) => {
     const options = {
         chart: {
             type: 'line',
@@ -13,6 +18,17 @@ const Charts = (props: ICharts) => {
         },
         xAxis: {
             categories: props.data.timestamp,
+        },
+        plotOptions: {
+            series: {
+                point: {
+                    events: {
+                        click: function (e: any) {
+                            props.setChosenTracker(e.point.category)
+                        },
+                    },
+                },
+            },
         },
         series: [
             {
