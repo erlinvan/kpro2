@@ -64,7 +64,7 @@ def generate_random_beacon_data(beacon_id: int, date):
 
 
 def generate_random_data_point(beacon_id, city, thing_name, init_date):
-    rand_date = random_date(init_date)
+    rand_date = random_date(later_than=init_date)
     lat = uniform(*city['lat_range'])
     lon = uniform(*city['long_rang'])
     pk = str(uuid.uuid4())
@@ -111,7 +111,7 @@ def generate_random_trips_for_thing(thing_name, cities, init_date):
 
 
 items = []
-init_date = datetime.now()
+init_date = datetime.now() + timedelta(days=-80)
 for thing_name in ['dummy_apple'+str(i) for i in range(13)]:
     items.extend(generate_random_trips_for_thing(
         thing_name, random_trip(), init_date))
@@ -125,7 +125,8 @@ for thing_name in ['dummy_fjellsport'+str(i) for i in range(5)]:
         thing_name, random_trip(), init_date))
 
 
+print("Number of items", len(items))
 for item in items:
     s = table.put_item(
         Item=item
-    )
+  )
