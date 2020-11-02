@@ -13,6 +13,7 @@ import HistoricTrackerMap from './HistoricTrackerMap'
 const Trackerinfo = () => {
     const context = useContext(Context)
     const history = useHistory()
+    const [chosenTracker, setChosenTracker] = useState('')
     const [cardData, setCardData] = useState<trackerinfo>({
         name: '',
         maxHumidity: '',
@@ -144,12 +145,21 @@ const Trackerinfo = () => {
                     <br></br>
                     <Grid container spacing={1}>
                         <Grid item xs={7}>
-                            <Charts data={temperatureChart} />
-                            <Charts data={humidityChart} />
+                            <Charts
+                                data={temperatureChart}
+                                setChosenTracker={setChosenTracker}
+                            />
+                            <Charts
+                                data={humidityChart}
+                                setChosenTracker={setChosenTracker}
+                            />
                         </Grid>
                         <Grid item xs={4}>
                             {trackerinfo && (
-                                <HistoricTrackerMap data={trackerinfo} />
+                                <HistoricTrackerMap
+                                    data={trackerinfo}
+                                    chosenTracker={chosenTracker}
+                                />
                             )}
                         </Grid>
                         <Grid item></Grid>

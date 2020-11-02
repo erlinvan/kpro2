@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from 'react'
 import { Map, Marker, Polyline, Popup, TileLayer } from 'react-leaflet'
 import './TrackerInfo.css'
-
 import { IGPSData } from '../../Interfaces/ITrackers'
 import L from 'leaflet'
 
 type props = {
     data: any
+    chosenTracker: string
 }
 
-const HistoricTrackerMap = ({ data }: props) => {
+const HistoricTrackerMap = ({ data, chosenTracker }: props) => {
     const [markers, setMarkers] = useState<any>([])
     const greenIcon = new L.Icon({
         iconUrl:
             'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+    })
+    const blackIcon = new L.Icon({
+        iconUrl:
+            'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
@@ -31,20 +39,27 @@ const HistoricTrackerMap = ({ data }: props) => {
     })
 
     useEffect(() => {
+        setMarkers([''])
+        console.log('markers:' + markers)
         setMarkers(
             data.map(
-                (trackerLocation: { time_stamp: string; gps: IGPSData }) => (
-                    <Marker
-                        icon={blueIcon}
-                        key={trackerLocation.time_stamp}
-                        position={[
-                            trackerLocation.gps.lat,
-                            trackerLocation.gps.lon,
-                        ]}
-                    >
-                        <Popup>{trackerLocation.time_stamp}</Popup>
-                    </Marker>
-                )
+                (trackerLocation: {
+                    timestamp: string
+                    time_stamp: string
+                    gps: IGPSData
+                }) =>
+                    trackerLocation.time_stamp && (
+                        <Marker
+                            key={trackerLocation.time_stamp}
+                            icon={blueIcon}
+                            position={[
+                                trackerLocation.gps.lat,
+                                trackerLocation.gps.lon,
+                            ]}
+                        >
+                            <Popup>{trackerLocation.time_stamp}</Popup>
+                        </Marker>
+                    )
             )
         )
         setMarkers((markers: any) => [
@@ -54,13 +69,38 @@ const HistoricTrackerMap = ({ data }: props) => {
                     (beacon_data: any) =>
                         beacon_data.latitude && (
                             <Marker
+                                key={beacon_data.timestamp}
                                 icon={greenIcon}
-                                key={beacon_data.time_stamp}
                                 position={[
                                     beacon_data.latitude,
                                     beacon_data.longitude,
                                 ]}
                             >
+                                {console.log('green: ' + beacon_data.timestamp)}
+                                <Popup>{beacon_data.timestamp}</Popup>
+                            </Marker>
+                        )
+                )
+            ),
+        ])
+        setMarkers((markers: any) => [
+            ...markers,
+            data.map((d: any) =>
+                d.beacon_data.map(
+                    (beacon_data: any) =>
+                        beacon_data.latitude &&
+                        beacon_data.timestamp &&
+                        beacon_data.timestamp.split(':')[0] ===
+                            chosenTracker.split(':')[0] && (
+                            <Marker
+                                icon={blackIcon}
+                                key={beacon_data.timestamp}
+                                position={[
+                                    beacon_data.latitude,
+                                    beacon_data.longitude,
+                                ]}
+                            >
+                                {console.log('black:' + beacon_data.timestamp)}
                                 <Popup>{beacon_data.description}</Popup>
                             </Marker>
                         )
@@ -69,7 +109,7 @@ const HistoricTrackerMap = ({ data }: props) => {
         ])
         // We can't add green or blue icon to dependencies as this will cause infinite rerendering.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data])
+    }, [data, chosenTracker])
 
     const [polylines, setPolylines] = useState<any>([])
 
