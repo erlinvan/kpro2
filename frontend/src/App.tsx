@@ -1,6 +1,6 @@
 import React from 'react'
 import './App.css'
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
 import AppBar from './AppBar/AppBar'
 import Trackerinfo from './Components/Trackerinfo/Trackerinfo'
 import Login from './Components/Login/Login'
@@ -9,16 +9,13 @@ import ContextProvider from './Context/ContextProvider'
 import LandingPage from './Components/LandingPage/LandingPage'
 
 function App() {
-
     return (
         <ContextProvider>
             <div>
                 <BrowserRouter>
                     <AppBar />
                     <Switch>
-                        <Route exact
-                               path="/"
-                               component={LandingPage} />
+                        <Route exact path="/" component={LandingPage} />
                         <Route
                             exact
                             path="/trackerinfo"
@@ -30,6 +27,9 @@ function App() {
                             component={SearchAndTableComponent}
                         />
                         <Route exact path="/login" component={Login} />
+                        <Route exact path="/refresh">
+                            <Redirect to="trackerinfo"></Redirect>
+                        </Route>
                     </Switch>
                 </BrowserRouter>
             </div>
