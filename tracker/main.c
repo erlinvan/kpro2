@@ -71,6 +71,12 @@
 
 #define UART_TX_BUF_SIZE 256
 #define UART_RX_BUF_SIZE 256
+#define UART_HWFC APP_UART_FLOW_CONTROL_DISABLED
+
+#define TRACKER_RX_PIN_NUMBER NRF_GPIO_PIN_MAP(0,12)
+#define TRACKER_TX_PIN_NUMBER NRF_GPIO_PIN_MAP(0,14)
+#define TRACKER_CTS_PIN_NUMBER NRF_GPIO_PIN_MAP(0,15)
+#define TRACKER_RTS_PIN_NUMBER NRF_GPIO_PIN_MAP(0,16)
 
 // Tag for identifying SoftDevice BLE configuration
 #define APP_BLE_CONN_CFG_TAG 1
@@ -90,6 +96,12 @@ const uint8_t manufactor_specific_uuid[3] = {0x03, 0xe1, 0xff};
 #define RECORD_KEY 0x1234
 
 #define BEACON_DATA_CAPACITY 32
+
+#define FAULT_THRESHOLD 2
+#define TIMER_SCAN_INTERVAL 2
+#define TIMER_SECONDS 5
+// Scan for TIMER_SECONDS seconds
+// Sleep for TIMER_SECONDS*TIMER_SCAN_INTERVAL seconds
 
 typedef struct {
     uint8_t bytes[6];
@@ -118,10 +130,10 @@ static const ble_gap_scan_params_t m_scan_param =
 };
 
 // static bool scanning = false;
-#define FAULT_THRESHOLD 2
+
 static size_t fault_counter = 0;
-#define TIMER_SCAN_INTERVAL 2
 static size_t timer_counter = 0;
+static size_t timestamp_counter = 0;
 
 
 static ret_code_t handle_error(ret_code_t ret_code) {
@@ -178,10 +190,10 @@ void uart_error_handle(app_uart_evt_t * p_event) {
 static void uart_init(void) {
     app_uart_comm_params_t const comm_params =
     {
-        .rx_pin_no    = RX_PIN_NUMBER,
-        .tx_pin_no    = TX_PIN_NUMBER,
-        .rts_pin_no   = RTS_PIN_NUMBER,
-        .cts_pin_no   = CTS_PIN_NUMBER,
+        .rx_pin_no    = TRACKER_RX_PIN_NUMBER,
+        .tx_pin_no    = TRACKER_TX_PIN_NUMBER,
+        .rts_pin_no   = TRACKER_RTS_PIN_NUMBER,
+        .cts_pin_no   = TRACKER_CTS_PIN_NUMBER,
         .flow_control = APP_UART_FLOW_CONTROL_DISABLED,
         .use_parity   = false,
 #if defined (UART_PRESENT)
@@ -204,13 +216,13 @@ static void uart_init(void) {
 }
 
 
-static void log_init(void) {
-    handle_error(
-        NRF_LOG_INIT(NULL)
-    );
-
-    NRF_LOG_DEFAULT_BACKENDS_INIT();
-}
+// static void log_init(void) {
+//     handle_error(
+//         NRF_LOG_INIT(NULL)
+//     );
+//
+//     NRF_LOG_DEFAULT_BACKENDS_INIT();
+// }
 
 
 static void power_management_init(void) {
@@ -388,7 +400,7 @@ static bool save_beacon_data(mac_address_t mac_address, float temperature, float
     memcpy(&beacon_data[beacon_data_size].mac_address, &mac_address, 6);
     beacon_data[beacon_data_size].temperature = temperature;
     beacon_data[beacon_data_size].humidity = humidity;
-    beacon_data[beacon_data_size].timestamp = (uint32_t)time(NULL);
+    beacon_data[beacon_data_size].timestamp = timestamp_counter;
     beacon_data_size += 1;
 
     return true;
@@ -396,6 +408,7 @@ static bool save_beacon_data(mac_address_t mac_address, float temperature, float
 
 
 static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
+    // app_uart_put('s');
     if (address_match_prefix(p_scan_evt->params.filter_match.p_adv_report->peer_addr.addr) &&
         data_match_frametype(p_scan_evt->params.filter_match.p_adv_report->data) &&
         data_match_uuid(p_scan_evt->params.filter_match.p_adv_report->data) &&
@@ -497,7 +510,7 @@ static void print_clear_beacon_data(void) {
             beacon_data[i].mac_address.bytes[0],
             beacon_data[i].temperature,
             beacon_data[i].humidity,
-            beacon_data[i].timestamp
+            timestamp_counter - beacon_data[i].timestamp
         );
         for (size_t j = 0; j < string_length; j++) {
             app_uart_put(string_buffer[j]);
@@ -577,7 +590,10 @@ static void print_clear_beacon_data(void) {
 
 
 void timer_evt_handler(nrf_timer_event_t event, void *p_context) {
+    // app_uart_put('t');
+
     timer_counter = (timer_counter + 1) % TIMER_SCAN_INTERVAL;
+    timestamp_counter += TIMER_SECONDS;
 
     if (timer_counter == 0) {
         nrf_pwr_mgmt_feed();
@@ -590,6 +606,7 @@ void timer_evt_handler(nrf_timer_event_t event, void *p_context) {
 
         if (fault_counter == 0) {
             print_clear_beacon_data();
+            timestamp_counter = 0;
         }
         nrf_ble_scan_stop();
         // nrf_drv_gpiote_out_set(BSP_LED_0);
@@ -603,7 +620,7 @@ static void timer_init(void) {
         nrf_drv_timer_init(&TIMER_INSTANCE, &timer_config, timer_evt_handler)
     );
 
-    uint32_t timer_ms = 5000;
+    uint32_t timer_ms = TIMER_SECONDS*1000;
     uint32_t timer_ticks = nrf_drv_timer_ms_to_ticks(&TIMER_INSTANCE, timer_ms);
 
     nrf_drv_timer_extended_compare(
@@ -717,20 +734,20 @@ static void timer_init(void) {
 // }
 
 
-static void idle_state_handle(void) {
-    NRF_LOG_FLUSH();
-    // If threre is no pending log, sleep until next event
-    if (NRF_LOG_PROCESS() == false) {
-        // Enters idle state, wait for event
-        nrf_pwr_mgmt_run();
-    }
-}
+// static void idle_state_handle(void) {
+//     NRF_LOG_FLUSH();
+//     // If threre is no pending log, sleep until next event
+//     if (NRF_LOG_PROCESS() == false) {
+//         // Enters idle state, wait for event
+//         nrf_pwr_mgmt_run();
+//     }
+// }
 
 
 static void init_state_machine(void) {
     scan_start();
     while(true) {
-        idle_state_handle();
+        nrf_pwr_mgmt_run();
     }
 }
 
@@ -738,7 +755,7 @@ static void init_state_machine(void) {
 int main(void) {
     timer_init();
     uart_init();
-    log_init();
+    // log_init();
     // // gpio_init();
     power_management_init();
     // app_uart_put('x');
