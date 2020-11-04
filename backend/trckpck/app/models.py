@@ -1,3 +1,4 @@
+""" Models """
 import boto3
 from boto3.dynamodb.conditions import Key
 from django.db import models
@@ -5,17 +6,20 @@ from django.conf import settings
 
 
 class Company(models.Model):
+    """ Company model """
     company_name = models.CharField(max_length=200, primary_key=True)
 
     def __str__(self):
-        return self.company_name
+        return str(self.company_name)
 
 
 class Package(models.Model):
+    """ Package model  """
     company_owner = models.ForeignKey(Company, on_delete=models.CASCADE)
     tracker_id = models.CharField(max_length=200)
 
     class Meta:
+        """" Unique """
         unique_together = ('company_owner', 'tracker_id')
 
     def get_package_data(self):
@@ -25,7 +29,8 @@ class Package(models.Model):
         response = table.query(
             IndexName='thing_name-db_timestamp-index',
             ScanIndexForward=True,
-            KeyConditionExpression=Key(settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
+            KeyConditionExpression=Key(
+                settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
         )
         items = response.get('Items', [])
         payload_list = []
@@ -34,7 +39,8 @@ class Package(models.Model):
             self.add_beacon_description(item['reported']['beacon_data'])
             self.add_beacon_gps(item['reported']['beacon_data'])
             self.format_beacon_values(item['reported']['beacon_data'])
-            item['reported']['beacon_data'].sort(key=lambda b: b['timestamp'], reverse=False)
+            item['reported']['beacon_data'].sort(
+                key=lambda b: b['timestamp'], reverse=False)
             payload = {
                 "id": self.tracker_id,
                 "battery_percentage": float(item['reported']['battery_percentage']),
@@ -47,30 +53,35 @@ class Package(models.Model):
         return payload_list
 
     def format_beacon_values(self, beacon_data):
-        for b in beacon_data:
-            b["temperature"] = float(b['temperature'])
-            b["humidity"] = float(b['humidity'])
+        """ Format beacon values """
+        for beacon in beacon_data:
+            beacon["temperature"] = float(beacon['temperature'])
+            beacon["humidity"] = float(beacon['humidity'])
 
     def add_beacon_gps(self, beacon_data):
-        for b in beacon_data:
+        """ Add gps data to beacons """
+        for beacon in beacon_data:
             try:
-                beacon_latitude = Beacon.objects.get(id=b['beacon_id']).latitude
-                beacon_longitude = Beacon.objects.get(id=b['beacon_id']).longitude
+                beacon_latitude = Beacon.objects.get(
+                    id=beacon['beacon_id']).latitude
+                beacon_longitude = Beacon.objects.get(
+                    id=beacon['beacon_id']).longitude
                 if beacon_latitude and beacon_longitude:
-                    b['latitude'] = beacon_latitude
-                    b['longitude'] = beacon_longitude
+                    beacon['latitude'] = beacon_latitude
+                    beacon['longitude'] = beacon_longitude
             except Beacon.DoesNotExist:
                 pass
 
     def add_beacon_description(self, beacon_data):
-        for b in beacon_data:
+        """ Add description to beacons """
+        for beacon in beacon_data:
             beacon_description = ''
             try:
-                beacon_description = Beacon.objects.get(id=b['beacon_id']).description
+                beacon_description = Beacon.objects.get(
+                    id=beacon['beacon_id']).description
             except Beacon.DoesNotExist:
                 pass
-            b["description"] = beacon_description
-
+            beacon["description"] = beacon_description
 
     def get_latest_timestamp_and_position(self):
         """Retrieves the timestamp and gps position of the most recent record"""
@@ -81,7 +92,8 @@ class Package(models.Model):
             ScanIndexForward=False,
             Limit=1,
             ProjectionExpression="db_timestamp, reported.GPS",
-            KeyConditionExpression=Key(settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
+            KeyConditionExpression=Key(
+                settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
         )
         items = response.get('Items', [])
         if len(items) > 0:
@@ -89,25 +101,29 @@ class Package(models.Model):
         return None, None
 
     def __str__(self):
-        return self.company_owner.company_name + ' ➝ ' + self.tracker_id
+        """ ToString method """
+        return str(self.company_owner.company_name + ' ➝ ' + self.tracker_id)
 
 
 class Beacon(models.Model):
     """ This model will be relevant later when we add descriptions to beacons """
     id = models.CharField(max_length=200, primary_key=True)
     description = models.CharField(max_length=200)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, blank=True, null=True)
 
     def __str__(self):
         return 'beacon ' + self.id
 
 
 class AppUser(models.Model):
+    """ User model """
     username = models.CharField(max_length=200, primary_key=True)
     permissions = models.ManyToManyField(Company, blank=True)
     is_superuser = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.username
-
+        """ ToString method """
+        return str(self.username)

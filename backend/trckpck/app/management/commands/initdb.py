@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from trckpck.app.models import Package, Company, AppUser, Beacon
 
+
 class Command(BaseCommand):
     help = 'Fills the database with some dummy data'
 
@@ -73,8 +74,8 @@ class Command(BaseCommand):
             komplett.appuser_set.add(komplettuser)
             fjellsport.appuser_set.add(fjellsportuser)
 
-
         except Exception:
-            raise Exception("Something went wrong. Most likely this command has already been run and  the packages are in the database")
+            raise Exception(
+                "Something went wrong. Most likely this command has already been run and  the packages are in the database")
 
         print("Many packages was made")
