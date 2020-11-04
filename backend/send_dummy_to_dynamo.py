@@ -64,7 +64,7 @@ def generate_random_beacon_data(beacon_id: int, date):
 
 
 def generate_random_data_point(beacon_id, city, thing_name, init_date):
-    rand_date = random_date(init_date)
+    rand_date = random_date(later_than=init_date)
     lat = uniform(*city['lat_range'])
     lon = uniform(*city['long_rang'])
     pk = str(uuid.uuid4())
@@ -87,43 +87,46 @@ def generate_random_data_point(beacon_id, city, thing_name, init_date):
     return item, rand_date
 
 
+def random_trip():
+    trips = [
+        [oslo, oslo_trondheim, trondheim],
+        [trondheim, oslo_trondheim, oslo],
+        [bergen, bergen_oslo, oslo],
+        [oslo, oslo_trondheim, trondheim_moirana, moirana_bodo],
+        [moirana_bodo, trondheim_moirana, bergen_trondheim],
+        [moirana_bodo, trondheim_moirana, oslo_trondheim, oslo],
+        [bergen, bergen_oslo, oslo, oslo_trondheim, trondheim]
+    ]
+    return trips[randint(0,len(trips)-1)]
+
+
+def generate_random_trips_for_thing(thing_name, cities, init_date):
+    items = []
+    for city in cities:
+        for _ in range(2):
+            item, init_date = generate_random_data_point(
+                randint(0, 1000), city, thing_name, init_date)
+            items.append(item)
+    return items
+
+
 items = []
-# for thing_name in ['dummy_apple'+str(i) for i in range(12)]:
-#    items.append(generate_random_data_point(str(randint(0,1000)), oslo,thing_name))
+init_date = datetime.now() + timedelta(days=-80)
+for thing_name in ['dummy_apple'+str(i) for i in range(13)]:
+    items.extend(generate_random_trips_for_thing(
+        thing_name, random_trip(), init_date))
 
-# for thing_name in ['dummy_komplett'+str(i) for i in range(7)]:
-#    items.append(generate_random_data_point(str(randint(0,1000)), trondheim, thing_name))
+for thing_name in ['dummy_komplett'+str(i) for i in range(8)]:
+    items.extend(generate_random_trips_for_thing(
+        thing_name, random_trip(), init_date))
 
-# for thing_name in ['dummy_fjellsport'+str(i) for i in range(5)]:
-#    items.append(generate_random_data_point(str(randint(0,1000)), trondheim,thing_name))
-init_date = datetime.now()
-thing_name = 'dummy_komplett8'
-for i in range(2):
-    item, init_date = generate_random_data_point(
-        444, oslo, thing_name, init_date)
-    items.append(item)
+for thing_name in ['dummy_fjellsport'+str(i) for i in range(5)]:
+    items.extend(generate_random_trips_for_thing(
+        thing_name, random_trip(), init_date))
 
-for i in range(2):
-    item, init_date = generate_random_data_point(
-        555, bergen_oslo, thing_name, init_date)
-    items.append(item)
 
-for i in range(2):
-    item, init_date = generate_random_data_point(
-        666, bergen, thing_name, init_date)
-    items.append(item)
-
-for i in range(2):
-    item, init_date = generate_random_data_point(
-        778, bergen_trondheim, thing_name, init_date)
-    items.append(item)
-
-for i in range(2):
-    item, init_date = generate_random_data_point(
-        999, trondheim_moirana, thing_name, init_date)
-    items.append(item)
-
+print("Number of items", len(items))
 for item in items:
     s = table.put_item(
         Item=item
-    )
+  )
