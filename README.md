@@ -1,63 +1,51 @@
 # kpro2
-Kundestyrt prosjekt gruppe 2
+ Customer Driven Project - Group 2
 
 # Backend
 
-## Hvordan utvikle lokalt i pycharm
-* Klon prosjektet
-* Åpne backend-mappa i pycharm
-* Sett interpreter i File->Settings->Project->Project Interpreter->Tannhjul->Add
-  * Lag et nytt virtual environment, pass på at den ligger i backend
-* Lag en configuration. Run->Edit configuration
-* Velg venv du lagde i Python interpreter
-* Dobbeltsjekk at Environment variables er satt til 'trckpck.settings'
-* Åpne requirements.txt, og trykk 'Install requirements'
+## How to develop locally
+* Clone the project
+* Open the project in your preferred terminal
 ```
-(venv)theodorc@mycomputer: python manage.py migrate
-(venv)theodorc@mycomputer: python manage.py initdb
-```
-* Trykk start øverst i høyre hjørne. Applikasjonen din skal nå kjøre på http://127.0.0.1:8000
-
-## Alternativ for å utvikle lokalt
-* Klon prosjektet
-* åpne mappen i terminalen
-```
-theodorc@mycomputer: cd backend
-theodorc@mycomputer: virtualenv venv && source venv/bin/activate
+theodorc@mycomputer kpro2/backend: cd backend
+theodorc@mycomputer kpro2/backend: virtualenv venv && source venv/bin/activate
 (venv)theodorc@mycomputer kpro2/backend: pip install -r requirements_dev.txt
-(venv)theodorc@mycomputer: python manage.py migrate
-(venv)theodorc@mycomputer: python manage.py initdb // this populates the localdb with some test data
-(venv)theodorc@mycomputer: python manage.py runserver
+(venv)theodorc@mycomputer kpro2/backend: python manage.py migrate
+(venv)theodorc@mycomputer kpro2/backend: python manage.py initdb // this populates the localdb with some test data
+(venv)theodorc@mycomputer kpro2/backend: python manage.py runserver
 ```
+* Your application is now available at http://localhost:8000
 
-## Oppsett AWS-integrasjon
+##  AWS setup
+To run the backend you need the correct privileges to connect to the DynamoDB instance
+* Install aws-cli for your system
 ```
 theodorc@mycomputer: aws configure
 ```
-* Bruk 'Access key ID' og 'Secret access key' som Theodor sendte til deg personlig på Slack
-* Restart applikasjonen
+* User 'Access key ID' and 'Secret access key' supplied to you by Theodor on Slack
+* Restart the application
 
-## Hvordan deploye backend
+## How to deploy the backend
+* Ask Theodor for access to the EC2 instance
+
 ```
-theodorc@mycomputer kpro2/backend: eb deploy
-theodorc@mycomputer kpro2/backend: eb status // This will report the status of our elastic beanstalk instance
+theodorc@mycomputer kpro2/backend: ssh -i your_priv_key.pem ubuntu@34.251.202.233 './deploy.sh'
 ```
 
 # Frontend
 
-## Hvordan utvikle lokalt i Visual Studio Code
-* Klon prosjektet
-* Åpne frontend-mappa i Visual Studio Code
+## How to develop locally in Visual Studio Code
+* clone the project
+* Open the frontend folder in VScode
 
 ```
-(venv)erlinvan@mycomputer: npm install
-(venv)erlinvan@mycomputer: npm start
+erlinvan@mycomputer: npm install
+erlinvan@mycomputer: npm start
 ```
-* Prosjektet vil så være tilgjengelig på http://127.0.0.1:3000
+* The project will be available at http://127.0.0.1:3000
 
 ## Netlify
+Netlify is configured to automatically deplopy changes from the main branch. Every PR will also get a test site. 
 
-Netlify er konfigurert til å automatisk deploye når endringer skjer på main-branch. I tillegg deployes en testside for hver pull request.
-
-Status til prosjektet på Netlify er:
+Status of the project on Netlify is:
 [![Netlify Status](https://api.netlify.com/api/v1/badges/2eebe088-c242-41a6-ac44-052c7b5edb4c/deploy-status)](https://app.netlify.com/sites/trckpck/deploys)
