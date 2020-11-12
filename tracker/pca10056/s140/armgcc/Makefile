@@ -26,6 +26,7 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/uart/app_uart_fifo.c \
   $(SDK_ROOT)/components/libraries/util/app_util_platform.c \
   $(SDK_ROOT)/components/libraries/timer/drv_rtc.c \
+  $(SDK_ROOT)/components/libraries/fds/fds.c \
   $(SDK_ROOT)/components/libraries/hardfault/hardfault_implementation.c \
   $(SDK_ROOT)/components/libraries/util/nrf_assert.c \
   $(SDK_ROOT)/components/libraries/atomic_fifo/nrf_atfifo.c \
@@ -34,6 +35,8 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
+  $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
+  $(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c \
   $(SDK_ROOT)/components/libraries/memobj/nrf_memobj.c \
   $(SDK_ROOT)/components/libraries/pwr_mgmt/nrf_pwr_mgmt.c \
   $(SDK_ROOT)/components/libraries/ringbuf/nrf_ringbuf.c \

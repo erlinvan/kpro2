@@ -40,11 +40,14 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <time.h>
 #include "nordic_common.h"
 #include "nrf.h"
 #include "ble_advertising.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
+#include "fds.h"
+#include "fds_internal_defs.h"
 #include "app_timer.h"
 #include "app_uart.h"
 #include "app_util_platform.h"
@@ -76,15 +79,27 @@
 
 NRF_BLE_SCAN_DEF(m_scan);
 
-typedef struct {
-    uint64_t value : 48;
-} mac_address_t;
-
 const uint8_t address_prefix[4] = {0xac, 0x23, 0x3f, 0xa4};
 const uint8_t manufactor_specific_uuid[3] = {0x03, 0xe1, 0xff};
 
-static mac_address_t discovered_beacons[20] = { };
-static int discovered_beacon_count = 0;
+#define FILE_ID 0x1234
+#define RECORD_KEY 0x1234
+
+#define BEACON_DATA_CAPACITY 32
+
+typedef struct {
+    uint8_t bytes[6];
+} mac_address_t;
+
+typedef struct {
+    mac_address_t mac_address;
+    float temperature;
+    float humidity;
+    uint32_t timestamp;
+} beacon_data_t;
+
+static beacon_data_t beacon_data[BEACON_DATA_CAPACITY] = {};
+static size_t beacon_data_size = 0;
 
 
 static const ble_gap_scan_params_t m_scan_param =
@@ -101,8 +116,18 @@ static const ble_gap_scan_params_t m_scan_param =
 static bool scanning = false;
 
 
+static ret_code_t handle_error(ret_code_t ret_code) {
+    APP_ERROR_CHECK(ret_code);
+    if (ret_code != NRF_SUCCESS) {
+        printf("\r\nError!\r\n");
+    }
+
+    return ret_code;
+}
+
+
 static void timers_init(void) {
-    APP_ERROR_CHECK(
+    handle_error(
         app_timer_init()
     );
 }
@@ -110,31 +135,31 @@ static void timers_init(void) {
 
 static void sleep_mode_enter(void) {
     // Prepare wakeup buttons.
-    APP_ERROR_CHECK(
+    handle_error(
         bsp_btn_ble_sleep_mode_prepare()
     );
 
     // Go to system-off mode (this function will not return; wakeup will cause a reset).
-    APP_ERROR_CHECK(
+    handle_error(
         sd_power_system_off()
     );
 }
 
 
 static void ble_stack_init(void) {
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_sdh_enable_request()
     );
 
     // Configure the BLE stack using the default settings.
     // Fetch the start address of the application RAM.
     uint32_t ram_start = 0;
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_sdh_ble_default_cfg_set(APP_BLE_CONN_CFG_TAG, &ram_start)
     );
 
     // Enable BLE stack.
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_sdh_ble_enable(&ram_start)
     );
 }
@@ -174,12 +199,12 @@ static void uart_init(void) {
         APP_IRQ_PRIORITY_LOWEST,
         err_code
     );
-    APP_ERROR_CHECK(err_code);
+    handle_error(err_code);
 }
 
 
 static void log_init(void) {
-    APP_ERROR_CHECK(
+    handle_error(
         NRF_LOG_INIT(NULL)
     );
 
@@ -197,9 +222,16 @@ static void idle_state_handle(void) {
 }
 
 
+static void power_management_init(void) {
+    handle_error(
+        nrf_pwr_mgmt_init()
+    );
+}
+
+
 static void scan_start(void) {
     printf("\r\nStarting scan.\r\n");
-    APP_ERROR_CHECK(nrf_ble_scan_start(&m_scan));
+    handle_error(nrf_ble_scan_start(&m_scan));
 }
 
 static bool address_match_prefix(const uint8_t *address) {
@@ -270,7 +302,7 @@ static void print_data(const ble_data_t data) {
 
 
 // Check if mac address in data packet matches mac address of device
-bool mac_address_location_match(const ble_gap_evt_adv_report_t* p_adv_report) {
+static bool mac_address_location_match(const ble_gap_evt_adv_report_t* p_adv_report) {
     if (
       p_adv_report->data.p_data[18] == p_adv_report->peer_addr.addr[0] &&
       p_adv_report->data.p_data[19] == p_adv_report->peer_addr.addr[1] &&
@@ -285,7 +317,7 @@ bool mac_address_location_match(const ble_gap_evt_adv_report_t* p_adv_report) {
 }
 
 
-bool data_match_frametype(const ble_data_t data) {
+static bool data_match_frametype(const ble_data_t data) {
     if (
       data.p_data[11] == 0xa1
     ) {
@@ -309,61 +341,70 @@ static bool data_match_uuid(const ble_data_t data) {
 
 // Extract MAC address from beacon data
 static mac_address_t extract_mac_address(ble_data_t data) {
-    mac_address_t mac_address = {data.p_data[18] << 20 |
-                                data.p_data[19] << 16 |
-                                data.p_data[20] << 12 |
-                                data.p_data[21] << 8  |
-                                data.p_data[22] << 4  |
-                                data.p_data[23]};
+    mac_address_t mac_address;
+    memcpy(&mac_address, &data.p_data[18], 6);
     return mac_address;
 }
-
-// Add new beacon to the discovered_beacons array
-static void add_beacon_to_discovered_beacons(mac_address_t mac_address) {
-    discovered_beacons[discovered_beacon_count] = mac_address;
-}
+//
+// // Add new beacon to the discovered_beacons array
+// static void add_beacon_to_discovered_beacons(mac_address_t mac_address) {
+//     discovered_beacons[discovered_beacon_count] = mac_address;
+// }
 
 // Check if the MAC addressed has been discovered from before. If no, add the incoming address to
 // discovered_beacons.
 static bool is_new_beacon(const ble_data_t data) {
     mac_address_t mac_address = extract_mac_address(data);
-    for (int i = 0; i < sizeof(discovered_beacons) / sizeof(discovered_beacons[0]); i++) {
-        if (memcmp(&discovered_beacons[i], &mac_address, 6) == 0) {
+    for (int i = 0; i < beacon_data_size; i++) {
+        if (memcmp(&beacon_data[i].mac_address, &mac_address, 6) == 0) {
             printf("\n\r Beacon already discovered \n\r");
-            printf("%d", discovered_beacon_count);
+            // printf("%d", discovered_beacon_count);
             return false;
             }
         }
     printf("\n\r New beacon! \n\r");
-    add_beacon_to_discovered_beacons(mac_address);
-    discovered_beacon_count++;
     return true;
 }
 
 // 8.8 fixed point byte representation to float
-float hex_to_float(const uint8_t integer, const uint8_t decimal){
+static float hex_to_float(const uint8_t integer, const uint8_t decimal){
    const float aftercomma = (float)decimal/256.0;
    return (float)integer + aftercomma;
 }
 
 
-void print_temperature(const float value){
+static void print_temperature(const float value){
      printf("\n\rTemperature: %.2fC\r\n", value);
 }
 
 
-void print_humidity(const float value) {
+static void print_humidity(const float value) {
      printf("\n\rHumidity: %.2f%c\r\n", value, '%');
 }
 
-const float extract_temperature(const ble_data_t data){
+static const float extract_temperature(const ble_data_t data){
      const float temperature_value = hex_to_float(data.p_data[14], data.p_data[15]);
      return temperature_value;
 }
 
-const float extract_humidity(const ble_data_t data){
+static const float extract_humidity(const ble_data_t data){
     const float humidity_value = hex_to_float(data.p_data[16], data.p_data[17]);
     return humidity_value;
+}
+
+
+static bool save_beacon_data(mac_address_t mac_address, float temperature, float humidity) {
+    if (beacon_data_size == BEACON_DATA_CAPACITY) {
+        return false;
+    }
+
+    memcpy(&beacon_data[beacon_data_size].mac_address, &mac_address, 6);
+    beacon_data[beacon_data_size].temperature = temperature;
+    beacon_data[beacon_data_size].humidity = humidity;
+    beacon_data[beacon_data_size].timestamp = time(NULL);
+    beacon_data_size += 1;
+
+    return true;
 }
 
 
@@ -384,19 +425,32 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
         return;
     }
 
-    const float temperature_value = extract_temperature(p_scan_evt->params.filter_match.p_adv_report->data);
-    const float humidity_value = extract_humidity(p_scan_evt->params.filter_match.p_adv_report->data);
-    
-    print_data(p_scan_evt->params.filter_match.p_adv_report->data);
+    const mac_address_t mac_address = extract_mac_address(
+        p_scan_evt->params.filter_match.p_adv_report->data
+    );
+    const float temperature = extract_temperature(
+        p_scan_evt->params.filter_match.p_adv_report->data
+    );
+    const float humidity = extract_humidity(
+        p_scan_evt->params.filter_match.p_adv_report->data
+    );
+
+    print_temperature(temperature);
+    print_humidity(humidity);
+
+    // print_data(p_scan_evt->params.filter_match.p_adv_report->data);
     print_address(p_scan_evt->params.filter_match.p_adv_report);
-    print_name(p_scan_evt->params.filter_match.p_adv_report);
+    // print_name(p_scan_evt->params.filter_match.p_adv_report);
 
-    print_temperature(temperature_value);
-    print_humidity(humidity_value);
+    save_beacon_data(
+        mac_address,
+        temperature,
+        humidity
+    );
 
-    printf("\r\nrssi: %d\r\n", p_scan_evt->params.filter_match.p_adv_report->rssi);
-    printf("\n\r beacons found: %d \n\r", discovered_beacons[0]);
-    print_manufacturer_data(p_scan_evt->params.filter_match.p_adv_report);
+    // printf("\r\nrssi: %d\r\n", p_scan_evt->params.filter_match.p_adv_report->rssi);
+    // printf("\n\r beacons found: %d \n\r", discovered_beacons[0]);
+    // print_manufacturer_data(p_scan_evt->params.filter_match.p_adv_report);
 }
 
 
@@ -408,10 +462,97 @@ static void scan_init(void) {
     init_scan.connect_if_match = false;
     init_scan.conn_cfg_tag = APP_BLE_CONN_CFG_TAG;
 
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_ble_scan_init(&m_scan, &init_scan, scan_evt_handler)
     );
 }
+
+
+static void fds_evt_handler(fds_evt_t const * p_fds_evt) {
+    handle_error(p_fds_evt->result);
+
+    printf("\r\nfds_evt_handler\r\n");
+}
+
+
+static void print_flash_data(const uint8_t *data, const size_t length_words) {
+    printf("\r\n");
+    for (size_t i = 0; i < length_words; i++) {
+        printf(
+            "%c%c%c%c",
+            ((uint8_t *)data)[i*4 + 0],
+            ((uint8_t *)data)[i*4 + 1],
+            ((uint8_t *)data)[i*4 + 2],
+            ((uint8_t *)data)[i*4 + 3]
+        );
+    }
+    printf("\r\n");
+}
+
+
+static void write_to_flash(const uint8_t *data, const size_t length) {
+    const fds_record_t record = {
+        .file_id = FILE_ID,
+        .key = RECORD_KEY,
+        .data.p_data = beacon_data,
+        .data.length_words = length
+    };
+
+    fds_record_desc_t record_desc;
+    fds_find_token_t ftok = {0};
+
+    printf("\r\nWriting data to flash:\r\n");
+    // print_flash_data(record.data.p_data, record.data.length_words);
+
+    if (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
+        handle_error(
+            fds_record_update(&record_desc, &record)
+        );
+    } else {
+        handle_error(
+            fds_record_write(&record_desc, &record)
+        );
+    }
+}
+
+
+static void read_from_flash() {
+    fds_flash_record_t  flash_record;
+    fds_record_desc_t   record_desc;
+    fds_find_token_t    ftok = {0};
+
+    if (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
+        handle_error(
+            fds_record_open(&record_desc, &flash_record)
+        );
+
+        printf("\r\nReading data from flash:\r\n");
+        // printf("\r\n%c\r\n", *(uint8_t *)flash_record.p_data);
+        // print_flash_data(flash_record.p_data, flash_record.p_header->length_words);
+
+        memcpy(
+            beacon_data,
+            flash_record.p_data,
+            sizeof(beacon_data_t)*flash_record.p_header->length_words / 6
+        );
+        beacon_data_size = flash_record.p_header->length_words / 6;
+
+        handle_error(
+            fds_record_close(&record_desc)
+        );
+    }
+}
+
+
+static void flash_storage_init(void) {
+    handle_error(
+        fds_register(fds_evt_handler)
+    );
+    handle_error(
+        fds_init()
+    );
+}
+
 
 void button_0_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
     printf("\r\nButton 0 press\r\n");
@@ -431,20 +572,54 @@ void button_0_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
 
 void button_1_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
     printf("\r\nButton 1 press\r\n");
+    write_to_flash((void *)beacon_data, beacon_data_size*6);
 
     // TODO figure out how sleep mode works
-    sleep_mode_enter();
+    //sleep_mode_enter();
+}
+
+
+void button_2_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
+    printf("\r\nButton 2 press\r\n");
+
+    read_from_flash();
+
+    // TODO figure out how sleep mode works
+    //sleep_mode_enter();
+}
+
+
+void button_3_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
+    printf("\r\nButton 3 press\r\n");
+
+    for (size_t i = 0; i < beacon_data_size; i++) {
+        printf(
+            "\r\n[0x%02x%02x%02x%02x%02x%02x, %f, %f, %ld]\r\n",
+            beacon_data[i].mac_address.bytes[5],
+            beacon_data[i].mac_address.bytes[4],
+            beacon_data[i].mac_address.bytes[3],
+            beacon_data[i].mac_address.bytes[2],
+            beacon_data[i].mac_address.bytes[1],
+            beacon_data[i].mac_address.bytes[0],
+            beacon_data[i].temperature,
+            beacon_data[i].humidity,
+            beacon_data[i].timestamp
+        );
+    }
+
+    // TODO figure out how sleep mode works
+    //sleep_mode_enter();
 }
 
 
 static void gpio_init(void) {
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_drv_gpiote_init()
     );
 
     // Enable led 0
     nrf_drv_gpiote_out_config_t out_config = GPIOTE_CONFIG_OUT_SIMPLE(false);
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_drv_gpiote_out_init(BSP_LED_0, &out_config)
     );
 
@@ -453,16 +628,28 @@ static void gpio_init(void) {
     in_config.pull = NRF_GPIO_PIN_PULLUP;
 
     // Eanble button 0
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_drv_gpiote_in_init(BSP_BUTTON_0, &in_config, button_0_handler)
     );
     nrf_drv_gpiote_in_event_enable(BSP_BUTTON_0, true);
 
     // Enable button 1
-    APP_ERROR_CHECK(
+    handle_error(
         nrf_drv_gpiote_in_init(BSP_BUTTON_1, &in_config, button_1_handler)
     );
     nrf_drv_gpiote_in_event_enable(BSP_BUTTON_1, true);
+
+    // Enable button 2
+    handle_error(
+        nrf_drv_gpiote_in_init(BSP_BUTTON_2, &in_config, button_2_handler)
+    );
+    nrf_drv_gpiote_in_event_enable(BSP_BUTTON_2, true);
+
+    // Enable button 3
+    handle_error(
+        nrf_drv_gpiote_in_init(BSP_BUTTON_3, &in_config, button_3_handler)
+    );
+    nrf_drv_gpiote_in_event_enable(BSP_BUTTON_3, true);
 }
 
 
@@ -471,9 +658,10 @@ int main(void) {
     log_init();
     timers_init();
     gpio_init();
-    APP_ERROR_CHECK(nrf_pwr_mgmt_init());
+    power_management_init();
     ble_stack_init();
     scan_init();
+    flash_storage_init();
 
     scan_start();
 
