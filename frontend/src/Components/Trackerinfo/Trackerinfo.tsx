@@ -1,7 +1,6 @@
 import { Box, Button, Card, Container, Grid } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 import { IBeacondata, ITrackerinfo } from '../../Interfaces/ITrackerinfo'
-import useFetch from '../../utils/useFetch'
 import Charts from '../Charts/Charts'
 import CardInfo from './CardInfo/CardInfo'
 import IconButton from '@material-ui/core/IconButton'
@@ -22,9 +21,12 @@ const Trackerinfo = () => {
         maxTemperature: '',
         minTemperature: '',
     })
-    const { response: trackerinfo } = useFetch<ITrackerinfo[]>(
-        'tracker/?id=' + context.trackerID
-    )
+    const fetchParameters = {
+        headers: {
+            'X-username': context.userName,
+        },
+    }
+    const [trackerinfo, setTrackerinfo] = useState<ITrackerinfo[]>()
     const [Temperature, setTemperature] = useState<number[]>([])
     const [Humidity, setHumidity] = useState<number[]>([])
     const [Timestamp, setTimestamp] = useState<string[]>([])
@@ -52,6 +54,8 @@ const Trackerinfo = () => {
         ])
     }
     useEffect(() => {
+        setTemperature([])
+        setHumidity([])
         trackerinfo &&
             trackerinfo.length !== 0 &&
             trackerinfo.map((beacondata) =>
@@ -69,6 +73,28 @@ const Trackerinfo = () => {
                 minTemperature: Math.min.apply(Math, Temperature).toString(),
             })
     }, [Temperature, Humidity, trackerinfo])
+
+    async function fetchData() {
+        const response = await fetch(
+            'https://api2.trckpck.theodorc.no/tracker/?id=' + context.trackerID,
+            fetchParameters
+        )
+        // waits until the request completes...
+        const json = await response.json()
+        setTrackerinfo(json)
+    }
+    const [seconds, setSeconds] = useState(0)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setSeconds((seconds) => seconds + 1)
+        }, 10000)
+        return () => clearInterval(interval)
+    }, [])
+
+    useEffect(() => {
+        fetchData()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [seconds])
 
     return (
         <>
@@ -134,7 +160,6 @@ const Trackerinfo = () => {
                         </Grid>
                         <Grid item></Grid>
                     </Grid>
-                    \
                 </>
             ) : (
                 history.push('login')
