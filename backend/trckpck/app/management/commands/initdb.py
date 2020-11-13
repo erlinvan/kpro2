@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
-from trckpck.app.models import Package, Company, AppUser
+from trckpck.app.models import Package, Company, AppUser, Beacon
+
 
 class Command(BaseCommand):
     help = 'Fills the database with some dummy data'
@@ -40,13 +41,13 @@ class Command(BaseCommand):
                 company_owner=apple,
                 tracker_id='test'
             )
-            for i in range(12):
+            for i in range(13):
                 Package.objects.create(
                     company_owner=apple,
                     tracker_id=f'dummy_apple{i}'
                 )
 
-            for i in range(7):
+            for i in range(8):
                 Package.objects.create(
                     company_owner=komplett,
                     tracker_id=f'dummy_komplett{i}'
@@ -57,6 +58,30 @@ class Command(BaseCommand):
                     company_owner=fjellsport,
                     tracker_id=f'dummy_fjellsport{i}'
                 )
+            Package.objects.create(
+                company_owner=komplett,
+                tracker_id='NORBIT-tracker'
+            )
+
+            # Create beacons
+            Beacon.objects.create(
+                id='789',
+                description='Beacon 789 description',
+                latitude=63.422588,
+                longitude=10.424960
+            )
+            Beacon.objects.create(
+                id='25d3a43f23ac',
+                description='Beacon description',
+                latitude=63.424102,
+                longitude=10.394430
+            )
+            Beacon.objects.create(
+                id='ac233fa4d325',
+                description='Beacon description',
+                latitude=63.524102,
+                longitude=10.294430
+            )
 
             # Add permissions
             apple.appuser_set.add(user)
@@ -65,8 +90,8 @@ class Command(BaseCommand):
             komplett.appuser_set.add(komplettuser)
             fjellsport.appuser_set.add(fjellsportuser)
 
-
         except Exception:
-            raise Exception("Something went wrong. Most likely this command has already been run and  the packages are in the database")
+            raise Exception(
+                "Something went wrong. Most likely this command has already been run and  the packages are in the database")
 
         print("Many packages was made")

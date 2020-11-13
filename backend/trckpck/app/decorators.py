@@ -26,5 +26,6 @@ def check_authorization(func):
             except (AppUser.DoesNotExist, Company.DoesNotExist):
                 pass
 
-        return HttpResponseForbidden("You don't have the permissions to view this page")
+        return HttpResponseForbidden(
+            "You don't have the permissions to view this page")
     return wrapper

@@ -1,8 +1,9 @@
+""" Views """
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
+from django.core.management import call_command
 from trckpck.app.models import Package, Company, AppUser
 from trckpck.app.decorators import check_authorization
-from django.core.management import call_command
 
 
 @check_authorization
@@ -12,8 +13,7 @@ def get_tracker_data(request):
     company_id = request.GET.get('company')
     if package_id:
         return get_package_data_by_package_id(package_id)
-    else:
-        return list_packages(company_id)
+    return list_packages(company_id)
 
 
 def get_user_data(request):
@@ -28,36 +28,41 @@ def get_user_data(request):
         packages_data = []
         for package in packages:
             timestamp, gps = package.get_latest_timestamp_and_position()
-            packages_data.append({
-                'id': package.id,
-                'timestamp': timestamp,
-                'company': package.company_owner.company_name,
-                'gps': gps
-            })
+            if timestamp and gps:
+                packages_data.append({
+                    'id': package.id,
+                    'timestamp': timestamp,
+                    'company': package.company_owner.company_name,
+                    'gps': gps
+                })
         packages_data.sort(key=lambda p: p['timestamp'], reverse=True)
         return JsonResponse(packages_data, safe=False)
 
     except AppUser.DoesNotExist:
-        return HttpResponseForbidden("You don't have the permissions to view this page")
+        return HttpResponseForbidden(
+            "You don't have the permissions to view this page")
 
 
 def list_packages(company_id):
     """ /tracker?company=company_id  """
     packages = []
     if company_id:
-        packages = Package.objects.filter(company_owner=Company.objects.get(pk=company_id))
+        packages = Package.objects.filter(
+            company_owner=Company.objects.get(pk=company_id))
     else:
         packages = Package.objects.all()
 
     packages_data = []
     for package in packages:
         timestamp, gps = package.get_latest_timestamp_and_position()
-        packages_data.append({
-            'id': package.id,
-            'timestamp': timestamp,
-            'gps': gps
-        })
-        packages_data.sort(key=lambda p: p['timestamp'], reverse=True)
+        if timestamp and gps:
+            packages_data.append({
+                'id': package.id,
+                'timestamp': timestamp,
+                'gps': gps
+            })
+
+    packages_data.sort(key=lambda p: p['timestamp'], reverse=True)
     return JsonResponse(packages_data, safe=False)
 
 
@@ -68,7 +73,7 @@ def get_package_data_by_package_id(id):
     return JsonResponse(items, safe=False)
 
 
-def get_packages_data_by_company_id(request, id):
+def get_packages_data_by_company_id(_, id):
     """Retrieves all packages with data for company with id=id, might be useful later"""
     packages = Package.objects.filter(company_owner=id.lower())
     packages_data = []
@@ -76,6 +81,8 @@ def get_packages_data_by_company_id(request, id):
         packages_data.append(package.get_package_data())
     return JsonResponse(packages_data, safe=False)
 
-def init_db(request):
+
+def init_db(_):
+    """ Initalize database """
     call_command('initdb')
     return HttpResponse(content="ok", status=200)
