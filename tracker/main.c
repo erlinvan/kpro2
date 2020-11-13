@@ -378,28 +378,6 @@ static void scan_init(void) {
 }
 
 
-// void fds_evt_handler(fds_evt_t const * p_fds_evt) {
-//     handle_error(p_fds_evt->result);
-//
-//     printf("\r\nfds_evt_handler\r\n");
-// }
-//
-//
-// static void print_flash_data(const uint8_t *data, const size_t length_words) {
-//     printf("\r\n");
-//     for (size_t i = 0; i < length_words; i++) {
-//         printf(
-//             "%c%c%c%c",
-//             ((uint8_t *)data)[i*4 + 0],
-//             ((uint8_t *)data)[i*4 + 1],
-//             ((uint8_t *)data)[i*4 + 2],
-//             ((uint8_t *)data)[i*4 + 3]
-//         );
-//     }
-//     printf("\r\n");
-// }
-
-
 static void clear_beacon_data(void) {
     beacon_data_size = 0;
 }
@@ -449,6 +427,27 @@ static void print_clear_beacon_data(void) {
 }
 
 
+// void fds_evt_handler(fds_evt_t const * p_fds_evt) {
+//     handle_error(p_fds_evt->result);
+//
+//     printf("\r\nfds_evt_handler\r\n");
+// }
+//
+//
+// static void print_flash_data(const uint8_t *data, const size_t length_words) {
+//     printf("\r\n");
+//     for (size_t i = 0; i < length_words; i++) {
+//         printf(
+//             "%c%c%c%c",
+//             ((uint8_t *)data)[i*4 + 0],
+//             ((uint8_t *)data)[i*4 + 1],
+//             ((uint8_t *)data)[i*4 + 2],
+//             ((uint8_t *)data)[i*4 + 3]
+//         );
+//     }
+//     printf("\r\n");
+// }
+//
 // static void write_to_flash(const uint8_t *data, const size_t length) {
 //     if (length == 0) {
 //         return;
