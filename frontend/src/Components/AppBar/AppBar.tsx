@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button'
 import Toolbar from '@material-ui/core/Toolbar'
 import './AppBar.css'
 import { withRouter, useHistory } from 'react-router-dom'
-import { Context } from '../Context/ContextProvider'
+import { Context } from '../../Context/ContextProvider'
 import { Grid } from '@material-ui/core'
 
 const AppBar = () => {
