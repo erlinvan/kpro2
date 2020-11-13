@@ -73,6 +73,7 @@
 #define UART_RX_BUF_SIZE 256
 #define UART_HWFC APP_UART_FLOW_CONTROL_DISABLED
 
+#define USE_TRACKER_UART_PINS
 #define TRACKER_RX_PIN_NUMBER NRF_GPIO_PIN_MAP(0,12)
 #define TRACKER_TX_PIN_NUMBER NRF_GPIO_PIN_MAP(0,14)
 #define TRACKER_CTS_PIN_NUMBER NRF_GPIO_PIN_MAP(0,15)
@@ -126,13 +127,10 @@ static const ble_gap_scan_params_t m_scan_param =
     .active        = 0x01,
     .interval      = NRF_BLE_SCAN_SCAN_INTERVAL,
     .window        = NRF_BLE_SCAN_SCAN_WINDOW,
-    //TODO figure out how whitelist works
-    .filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL, //BLE_GAP_SCAN_FP_WHITELIST,
+    .filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL,
     .timeout       = SCAN_DURATION_WITELIST,
     .scan_phys     = BLE_GAP_PHY_1MBPS,
 };
-
-// static bool scanning = false;
 
 static size_t fault_counter = 0;
 static size_t timer_counter = 0;
@@ -142,33 +140,12 @@ static size_t timestamp_counter = 0;
 static ret_code_t handle_error(ret_code_t ret_code) {
     APP_ERROR_CHECK(ret_code);
     if (ret_code != NRF_SUCCESS) {
-        if (ret_code == NRF_ERROR_NO_MEM) {
-            //app_uart_flush();
-            //app_uart_put('n');
-        } else if (ret_code == NRF_ERROR_INTERNAL) {
-            //app_uart_flush();
-            //app_uart_put('i');
-        } else {
-            //app_uart_flush();
-            //app_uart_put('e');
-        }
+        //app_uart_flush();
+        //app_uart_put('n');
     }
 
     return ret_code;
 }
-
-
-// static void sleep_mode_enter(void) {
-//     // Prepare wakeup buttons.
-//     handle_error(
-//         bsp_btn_ble_sleep_mode_prepare()
-//     );
-//
-//     // Go to system-off mode (this function will not return; wakeup will cause a reset).
-//     handle_error(
-//         sd_power_system_off()
-//     );
-// }
 
 
 static void ble_stack_init(void) {
@@ -200,6 +177,7 @@ void uart_error_handle(app_uart_evt_t * p_event) {
 
 
 static void uart_init(void) {
+#ifdef USE_TRACKER_UART_PINS
     app_uart_comm_params_t const comm_params =
     {
         .rx_pin_no    = TRACKER_RX_PIN_NUMBER,
@@ -214,21 +192,22 @@ static void uart_init(void) {
         .baud_rate    = NRF_UARTE_BAUDRATE_115200
 #endif
     };
-
-//     app_uart_comm_params_t const comm_params =
-//     {
-//         .rx_pin_no    = RX_PIN_NUMBER,
-//         .tx_pin_no    = TX_PIN_NUMBER,
-//         .rts_pin_no   = RTS_PIN_NUMBER,
-//         .cts_pin_no   = CTS_PIN_NUMBER,
-//         .flow_control = APP_UART_FLOW_CONTROL_DISABLED,
-//         .use_parity   = false,
-// #if defined (UART_PRESENT)
-//         .baud_rate    = NRF_UART_BAUDRATE_115200
-// #else
-//         .baud_rate    = NRF_UARTE_BAUDRATE_115200
-// #endif
-//     };
+#else
+    app_uart_comm_params_t const comm_params =
+    {
+        .rx_pin_no    = RX_PIN_NUMBER,
+        .tx_pin_no    = TX_PIN_NUMBER,
+        .rts_pin_no   = RTS_PIN_NUMBER,
+        .cts_pin_no   = CTS_PIN_NUMBER,
+        .flow_control = APP_UART_FLOW_CONTROL_DISABLED,
+        .use_parity   = false,
+#if defined (UART_PRESENT)
+        .baud_rate    = NRF_UART_BAUDRATE_115200
+#else
+        .baud_rate    = NRF_UARTE_BAUDRATE_115200
+#endif
+    };
+#endif
 
     uint32_t err_code;
     APP_UART_FIFO_INIT(
@@ -242,16 +221,6 @@ static void uart_init(void) {
     handle_error(err_code);
 }
 
-
-// static void log_init(void) {
-//     handle_error(
-//         NRF_LOG_INIT(NULL)
-//     );
-//
-//     NRF_LOG_DEFAULT_BACKENDS_INIT();
-// }
-
-
 static void power_management_init(void) {
     handle_error(
         nrf_pwr_mgmt_init()
@@ -260,9 +229,7 @@ static void power_management_init(void) {
 
 
 static void scan_start(void) {
-    // printf("\r\nStarting scan.\r\n");
     handle_error(nrf_ble_scan_start(&m_scan));
-    // scanning = true;
 }
 
 static bool address_match_prefix(const uint8_t *address) {
@@ -277,60 +244,6 @@ static bool address_match_prefix(const uint8_t *address) {
 
     return false;
 }
-
-// static void print_address(const ble_gap_evt_adv_report_t* p_adv_report) {
-//     printf("\r\naddr: %02x:%02x:%02x:%02x:%02x:%02x\r\n",
-//        p_adv_report->peer_addr.addr[5],
-//        p_adv_report->peer_addr.addr[4],
-//        p_adv_report->peer_addr.addr[3],
-//        p_adv_report->peer_addr.addr[2],
-//        p_adv_report->peer_addr.addr[1],
-//        p_adv_report->peer_addr.addr[0]);
-// }
-//
-// static void print_name(const ble_gap_evt_adv_report_t* p_adv_report) {
-//     uint16_t offset = 0;
-//     char name[DEV_NAME_LEN] = { 0 };
-//
-//     uint16_t length = ble_advdata_search(p_adv_report->data.p_data, p_adv_report->data.len, &offset, BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME);
-//     if (length == 0) {
-//         // Look for the short local name if it was not found as complete.
-//         length = ble_advdata_search(p_adv_report->data.p_data, p_adv_report->data.len, &offset, BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME);
-//     }
-//
-//     if (length != 0) {
-//         memcpy(name, &p_adv_report->data.p_data[offset], length);
-//         printf("\r\nname: %s\r\n", nrf_log_push(name));
-//     }
-// }
-//
-// static void print_manufacturer_data(const ble_gap_evt_adv_report_t* p_adv_report) {
-//     uint16_t offset = 0;
-//     uint16_t length = ble_advdata_search(p_adv_report->data.p_data, p_adv_report->data.len, &offset, BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA);
-//
-//     if (length != 0) {
-//         char data_string[1024] = { 0 };
-//         char* pos = data_string;
-//         for (int i = 0; i < length && i < 512; i++) {
-//             sprintf(pos, "%02x", p_adv_report->data.p_data[offset+i]);
-//             pos += 2;
-//         }
-//
-//         printf("\r\nmanufacturer data: %s\r\n", nrf_log_push(data_string));
-//     }
-// }
-//
-// static void print_data(const ble_data_t data) {
-//     printf("\r\n");
-//     for (uint16_t i = 0; i < data.len; i++) {
-//         printf("%02x", data.p_data[i]);
-//         if (i != data.len - 1) {
-//             printf(":");
-//         }
-//     }
-//     printf("\r\n");
-// }
-
 
 // Check if mac address in data packet matches mac address of device
 static bool mac_address_location_match(const ble_gap_evt_adv_report_t* p_adv_report) {
@@ -397,44 +310,14 @@ static bool is_new_beacon(const ble_data_t data) {
     mac_address_t mac_address = extract_mac_address(data);
     for (int i = 0; i < beacon_data_size; i++) {
         if (memcmp(&beacon_data[i].mac_address, &mac_address, 6) == 0) {
-            // printf("\n\r Beacon already discovered \n\r");
-            // printf("%d", discovered_beacon_count);
             return false;
-            }
         }
-    // printf("\n\r New beacon! \n\r");
+    }
     return true;
 }
 
-// 8.8 fixed point byte representation to float
-// static float hex_to_float(const uint8_t integer, const uint8_t decimal){
-//    const float aftercomma = (float)decimal/256.0;
-//    return (float)integer + aftercomma;
-// }
-
-//
-// static void print_temperature(const float value){
-//      printf("\n\rTemperature: %.2fC\r\n", value);
-// }
-//
-//
-// static void print_humidity(const float value) {
-//      printf("\n\rHumidity: %.2f%c\r\n", value, '%');
-// }
-
-// static const float extract_temperature(const ble_data_t data){
-//      const float temperature_value = hex_to_float(data.p_data[14], data.p_data[15]);
-//      return temperature_value;
-// }
-//
-// static const float extract_humidity(const ble_data_t data){
-//     const float humidity_value = hex_to_float(data.p_data[16], data.p_data[17]);
-//     return humidity_value;
-// }
-
 
 static bool save_beacon_data(mac_address_t mac_address, float8dot8_t temperature, float8dot8_t humidity) {
-    // app_uart_put('d');
     if (beacon_data_size == BEACON_DATA_CAPACITY) {
         return false;
     }
@@ -449,19 +332,16 @@ static bool save_beacon_data(mac_address_t mac_address, float8dot8_t temperature
 
 
 static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
-    // app_uart_put('s');
     if (address_match_prefix(p_scan_evt->params.filter_match.p_adv_report->peer_addr.addr) &&
         data_match_frametype(p_scan_evt->params.filter_match.p_adv_report->data) &&
         data_match_uuid(p_scan_evt->params.filter_match.p_adv_report->data) &&
         mac_address_location_match(p_scan_evt->params.filter_match.p_adv_report) &&
         is_new_beacon(p_scan_evt->params.filter_match.p_adv_report->data)) {
-        // printf("\r\nFound new minew device\r\n");
     } else {
         return;
     }
 
     if (p_scan_evt->scan_evt_id == NRF_BLE_SCAN_EVT_SCAN_TIMEOUT) {
-        // printf("\r\nScan timed out.\r\n");
         scan_start();
         return;
     }
@@ -476,40 +356,11 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
         p_scan_evt->params.filter_match.p_adv_report->data
     );
 
-    // print_temperature(temperature);
-    // print_humidity(humidity);
-
-    // print_data(p_scan_evt->params.filter_match.p_adv_report->data);
-    // print_address(p_scan_evt->params.filter_match.p_adv_report);
-    // print_name(p_scan_evt->params.filter_match.p_adv_report);
-
     save_beacon_data(
         mac_address,
         temperature,
         humidity
     );
-
-    // const char hex[] = "0123456789abcdef";
-    // const ble_data_t *data = &p_scan_evt->params.filter_match.p_adv_report->data;
-    //
-    // handle_error(app_uart_put('['));
-    // for (size_t i = 14; i < 24; i++) {
-    //     handle_error(app_uart_put(
-    //         hex[(data->p_data[i] >> 4) & 0xf]
-    //     ));
-    //     handle_error(app_uart_put(
-    //         hex[data->p_data[i] & 0xf]
-    //     ));
-    //     if (i != 23) {
-    //         handle_error(app_uart_put(','));
-    //     }
-    // }
-    // handle_error(app_uart_put(']'));
-
-
-    // printf("\r\nrssi: %d\r\n", p_scan_evt->params.filter_match.p_adv_report->rssi);
-    // printf("\n\r beacons found: %d \n\r", discovered_beacons[0]);
-    // print_manufacturer_data(p_scan_evt->params.filter_match.p_adv_report);
 }
 
 
@@ -555,27 +406,6 @@ static void clear_beacon_data(void) {
 
 
 static void print_clear_beacon_data(void) {
-    // char string_buffer[128];
-    // int string_length;
-    // for (size_t i = 0; i < beacon_data_size; i++) {
-    //     string_length = sprintf(
-    //         string_buffer,
-    //         "[0x%02x%02x%02x%02x%02x%02x,%d,%d,%ld]",
-    //         beacon_data[i].mac_address.bytes[5],
-    //         beacon_data[i].mac_address.bytes[4],
-    //         beacon_data[i].mac_address.bytes[3],
-    //         beacon_data[i].mac_address.bytes[2],
-    //         beacon_data[i].mac_address.bytes[1],
-    //         beacon_data[i].mac_address.bytes[0],
-    //         1,
-    //         1,
-    //         timestamp_counter - beacon_data[i].timestamp
-    //     );
-    //     for (size_t j = 0; j < string_length; j++) {
-    //         app_uart_put(string_buffer[j]);
-    //     }
-    // }
-
     const char hex[] = "0123456789abcdef";
 
     for (size_t i = 0; i < beacon_data_size; i++) {
@@ -688,7 +518,6 @@ static void print_clear_beacon_data(void) {
 
 
 void timer_evt_handler(nrf_timer_event_t event, void *p_context) {
-    //app_uart_put('t');
 
     timer_counter = (timer_counter + 1) % TIMER_SCAN_INTERVAL;
     timestamp_counter += TIMER_SECONDS;
@@ -696,7 +525,6 @@ void timer_evt_handler(nrf_timer_event_t event, void *p_context) {
     if (timer_counter == 0) {
         nrf_pwr_mgmt_feed();
         nrf_ble_scan_start(&m_scan);
-        // nrf_drv_gpiote_out_clear(BSP_LED_0);
     } else if (timer_counter == 1) {
 
         // TODO: This sould be moved somewhere else
@@ -707,7 +535,6 @@ void timer_evt_handler(nrf_timer_event_t event, void *p_context) {
             timestamp_counter = 0;
         }
         nrf_ble_scan_stop();
-        // nrf_drv_gpiote_out_set(BSP_LED_0);
     }
 }
 
@@ -733,115 +560,6 @@ static void timer_init(void) {
 }
 
 
-// void button_0_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
-//     printf("\r\nButton 0 press\r\n");
-//
-//     if (scanning) {
-//         scanning = false;
-//         nrf_ble_scan_stop();
-//         nrf_drv_gpiote_out_set(BSP_LED_0);
-//     } else {
-//         scanning = true;
-//         // Indicate that activity is going on
-//         nrf_pwr_mgmt_feed();
-//         nrf_ble_scan_start(&m_scan);
-//         nrf_drv_gpiote_out_clear(BSP_LED_0);
-//     }
-// }
-//
-// void button_1_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
-//     printf("\r\nButton 1 press\r\n");
-//     write_to_flash((void *)beacon_data, beacon_data_size*6);
-//
-//     // TODO figure out how sleep mode works
-//     //sleep_mode_enter();
-// }
-//
-//
-// void button_2_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
-//     printf("\r\nButton 2 press\r\n");
-//
-//     read_from_flash();
-//
-//     // TODO figure out how sleep mode works
-//     //sleep_mode_enter();
-// }
-
-
-// void button_3_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
-//     printf("\r\nButton 3 press\r\n");
-//
-//     for (size_t i = 0; i < beacon_data_size; i++) {
-//         printf(
-//             "\r\n[0x%02x%02x%02x%02x%02x%02x, %f, %f, %ld]\r\n",
-//             beacon_data[i].mac_address.bytes[5],
-//             beacon_data[i].mac_address.bytes[4],
-//             beacon_data[i].mac_address.bytes[3],
-//             beacon_data[i].mac_address.bytes[2],
-//             beacon_data[i].mac_address.bytes[1],
-//             beacon_data[i].mac_address.bytes[0],
-//             beacon_data[i].temperature,
-//             beacon_data[i].humidity,
-//             beacon_data[i].timestamp
-//         );
-//     }
-//
-//     // TODO figure out how sleep mode works
-//     //sleep_mode_enter();
-// }
-
-
-// static void gpio_init(void) {
-//     handle_error(
-//         nrf_drv_gpiote_init()
-//     );
-//
-//     // Enable led 0
-//     nrf_drv_gpiote_out_config_t out_config = GPIOTE_CONFIG_OUT_SIMPLE(false);
-//     handle_error(
-//         nrf_drv_gpiote_out_init(BSP_LED_0, &out_config)
-//     );
-//
-//     // Sense button pressed down configuration
-//     nrf_drv_gpiote_in_config_t in_config =  GPIOTE_CONFIG_IN_SENSE_HITOLO(true);
-//     in_config.pull = NRF_GPIO_PIN_PULLUP;
-//
-//     // Eanble button 0
-//     handle_error(
-//         nrf_drv_gpiote_in_init(BSP_BUTTON_0, &in_config, button_0_handler)
-//     );
-//     nrf_drv_gpiote_in_event_enable(BSP_BUTTON_0, true);
-//
-//     // Enable button 1
-//     handle_error(
-//         nrf_drv_gpiote_in_init(BSP_BUTTON_1, &in_config, button_1_handler)
-//     );
-//     nrf_drv_gpiote_in_event_enable(BSP_BUTTON_1, true);
-//
-//     // Enable button 2
-//     handle_error(
-//         nrf_drv_gpiote_in_init(BSP_BUTTON_2, &in_config, button_2_handler)
-//     );
-//     nrf_drv_gpiote_in_event_enable(BSP_BUTTON_2, true);
-//
-//     // Enable button 3
-//     handle_error(
-//         nrf_drv_gpiote_in_init(BSP_BUTTON_3, &in_config, button_3_handler)
-//     );
-//     nrf_drv_gpiote_in_event_enable(BSP_BUTTON_3, true);
-// }
-
-
-// static void idle_state_handle(void) {
-//     NRF_LOG_FLUSH();
-//     // If threre is no pending log, sleep until next event
-//     if (NRF_LOG_PROCESS() == false) {
-//         // Enters idle state, wait for event
-//         nrf_pwr_mgmt_run();
-//     }
-// }
-
-
 static void init_state_machine(void) {
     scan_start();
     while(true) {
@@ -853,17 +571,11 @@ static void init_state_machine(void) {
 int main(void) {
     timer_init();
     uart_init();
-    // log_init();
-    // // gpio_init();
     power_management_init();
-    // app_uart_put('x');
-    // app_uart_put('\r');
-    // app_uart_put('\n');
 
     ble_stack_init();
     scan_init();//
     // flash_storage_init();
-    // app_timer_init();
 
     init_state_machine();
 }
