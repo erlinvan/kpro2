@@ -20,8 +20,10 @@ Possibly change `GNU_INSTALL_ROOT` in `SDK_ROOT/components/toolchain/gcc/Makfile
 
 
 ## Usage
-`cd tracker/pca10056/blank/armgcc`
+`cd tracker/pca10056e/s140/armgcc`
 
 `make`
+
+`make flash_softdevice`
 
 `make flash`
