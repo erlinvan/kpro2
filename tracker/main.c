@@ -93,6 +93,7 @@ const nrf_drv_timer_t TIMER_INSTANCE = NRF_DRV_TIMER_INSTANCE(1);
 const uint8_t address_prefix[4] = {0xac, 0x23, 0x3f, 0xa4};
 const uint8_t manufactor_specific_uuid[3] = {0x03, 0xe1, 0xff};
 
+#define DONT_USE_FLASH_STORAGE
 #define FILE_ID 0x1234
 #define RECORD_KEY 0x1234
 
@@ -132,8 +133,10 @@ static const ble_gap_scan_params_t m_scan_param =
     .scan_phys     = BLE_GAP_PHY_1MBPS,
 };
 
+#define USE_FAULT_COUNTER
 static size_t fault_counter = 0;
 static size_t timer_counter = 0;
+static size_t beacons_found_during_scan = 0;
 static size_t timestamp_counter = 0;
 
 
@@ -332,35 +335,38 @@ static bool save_beacon_data(mac_address_t mac_address, float8dot8_t temperature
 
 
 static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
-    if (address_match_prefix(p_scan_evt->params.filter_match.p_adv_report->peer_addr.addr) &&
+    if (
+        address_match_prefix(p_scan_evt->params.filter_match.p_adv_report->peer_addr.addr) &&
         data_match_frametype(p_scan_evt->params.filter_match.p_adv_report->data) &&
         data_match_uuid(p_scan_evt->params.filter_match.p_adv_report->data) &&
         mac_address_location_match(p_scan_evt->params.filter_match.p_adv_report) &&
-        is_new_beacon(p_scan_evt->params.filter_match.p_adv_report->data)) {
-    } else {
-        return;
+        is_new_beacon(p_scan_evt->params.filter_match.p_adv_report->data)
+    ) {
+        if (p_scan_evt->scan_evt_id == NRF_BLE_SCAN_EVT_SCAN_TIMEOUT) {
+            scan_start();
+            return;
+        }
+
+        const mac_address_t mac_address = extract_mac_address(
+            p_scan_evt->params.filter_match.p_adv_report->data
+        );
+        const float8dot8_t temperature = extract_temperature_bytes(
+            p_scan_evt->params.filter_match.p_adv_report->data
+        );
+        const float8dot8_t humidity = extract_humidity_bytes(
+            p_scan_evt->params.filter_match.p_adv_report->data
+        );
+
+        save_beacon_data(
+            mac_address,
+            temperature,
+            humidity
+        );
+
+#ifdef USE_FAULT_COUNTER
+        beacons_found_during_scan += 1;
+#endif
     }
-
-    if (p_scan_evt->scan_evt_id == NRF_BLE_SCAN_EVT_SCAN_TIMEOUT) {
-        scan_start();
-        return;
-    }
-
-    const mac_address_t mac_address = extract_mac_address(
-        p_scan_evt->params.filter_match.p_adv_report->data
-    );
-    const float8dot8_t temperature = extract_temperature_bytes(
-        p_scan_evt->params.filter_match.p_adv_report->data
-    );
-    const float8dot8_t humidity = extract_humidity_bytes(
-        p_scan_evt->params.filter_match.p_adv_report->data
-    );
-
-    save_beacon_data(
-        mac_address,
-        temperature,
-        humidity
-    );
 }
 
 
@@ -427,93 +433,92 @@ static void print_clear_beacon_data(void) {
 }
 
 
-// void fds_evt_handler(fds_evt_t const * p_fds_evt) {
-//     handle_error(p_fds_evt->result);
-//
-//     printf("\r\nfds_evt_handler\r\n");
-// }
-//
-//
-// static void print_flash_data(const uint8_t *data, const size_t length_words) {
-//     printf("\r\n");
-//     for (size_t i = 0; i < length_words; i++) {
-//         printf(
-//             "%c%c%c%c",
-//             ((uint8_t *)data)[i*4 + 0],
-//             ((uint8_t *)data)[i*4 + 1],
-//             ((uint8_t *)data)[i*4 + 2],
-//             ((uint8_t *)data)[i*4 + 3]
-//         );
-//     }
-//     printf("\r\n");
-// }
-//
-// static void write_to_flash(const uint8_t *data, const size_t length) {
-//     if (length == 0) {
-//         return;
-//     }
-//
-//     const fds_record_t record = {
-//         .file_id = FILE_ID,
-//         .key = RECORD_KEY,
-//         .data.p_data = beacon_data,
-//         .data.length_words = length
-//     };
-//
-//     fds_record_desc_t record_desc;
-//     fds_find_token_t ftok = {0};
-//
-//     printf("\r\nWriting data to flash:\r\n");
-//     // print_flash_data(record.data.p_data, record.data.length_words);
-//
-//     if (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
-//         handle_error(
-//             fds_record_update(&record_desc, &record)
-//         );
-//     } else {
-//         handle_error(
-//             fds_record_write(&record_desc, &record)
-//         );
-//     }
-// }
-//
-//
-// static void read_from_flash() {
-//     fds_flash_record_t  flash_record;
-//     fds_record_desc_t   record_desc;
-//     fds_find_token_t    ftok = {0};
-//
-//     if (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
-//         handle_error(
-//             fds_record_open(&record_desc, &flash_record)
-//         );
-//
-//         printf("\r\nReading data from flash:\r\n");
-//         // printf("\r\n%c\r\n", *(uint8_t *)flash_record.p_data);
-//         // print_flash_data(flash_record.p_data, flash_record.p_header->length_words);
-//
-//         memcpy(
-//             beacon_data,
-//             flash_record.p_data,
-//             sizeof(beacon_data_t)*flash_record.p_header->length_words / 6
-//         );
-//         beacon_data_size = flash_record.p_header->length_words / 6;
-//
-//         handle_error(
-//             fds_record_close(&record_desc)
-//         );
-//     }
-// }
+void fds_evt_handler(fds_evt_t const * p_fds_evt) {
+    handle_error(p_fds_evt->result);
+}
 
 
-// static void flash_storage_init(void) {
-//     handle_error(
-//         fds_register(fds_evt_handler)
-//     );
-//     handle_error(
-//         fds_init()
-//     );
-// }
+#ifdef USE_FLASH_STORAGE
+static void print_flash_data(const uint8_t *data, const size_t length_words) {
+    printf("\r\n");
+    for (size_t i = 0; i < length_words; i++) {
+        printf(
+            "%c%c%c%c",
+            ((uint8_t *)data)[i*4 + 0],
+            ((uint8_t *)data)[i*4 + 1],
+            ((uint8_t *)data)[i*4 + 2],
+            ((uint8_t *)data)[i*4 + 3]
+        );
+    }
+    printf("\r\n");
+}
+
+static void write_to_flash(const uint8_t *data, const size_t length) {
+    if (length == 0) {
+        return;
+    }
+
+    const fds_record_t record = {
+        .file_id = FILE_ID,
+        .key = RECORD_KEY,
+        .data.p_data = beacon_data,
+        .data.length_words = length
+    };
+
+    fds_record_desc_t record_desc;
+    fds_find_token_t ftok = {0};
+
+    printf("\r\nWriting data to flash:\r\n");
+    // print_flash_data(record.data.p_data, record.data.length_words);
+
+    if (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
+        handle_error(
+            fds_record_update(&record_desc, &record)
+        );
+    } else {
+        handle_error(
+            fds_record_write(&record_desc, &record)
+        );
+    }
+}
+
+
+static void read_from_flash() {
+    fds_flash_record_t  flash_record;
+    fds_record_desc_t   record_desc;
+    fds_find_token_t    ftok = {0};
+
+    if (fds_record_find(FILE_ID, RECORD_KEY, &record_desc, &ftok) == NRF_SUCCESS) {
+        handle_error(
+            fds_record_open(&record_desc, &flash_record)
+        );
+
+        printf("\r\nReading data from flash:\r\n");
+        // printf("\r\n%c\r\n", *(uint8_t *)flash_record.p_data);
+        // print_flash_data(flash_record.p_data, flash_record.p_header->length_words);
+
+        memcpy(
+            beacon_data,
+            flash_record.p_data,
+            sizeof(beacon_data_t)*flash_record.p_header->length_words / 6
+        );
+        beacon_data_size = flash_record.p_header->length_words / 6;
+
+        handle_error(
+            fds_record_close(&record_desc)
+        );
+    }
+}
+
+static void flash_storage_init(void) {
+    handle_error(
+        fds_register(fds_evt_handler)
+    );
+    handle_error(
+        fds_init()
+    );
+}
+#endif
 
 
 void timer_evt_handler(nrf_timer_event_t event, void *p_context) {
@@ -522,16 +527,22 @@ void timer_evt_handler(nrf_timer_event_t event, void *p_context) {
     timestamp_counter += TIMER_SECONDS;
 
     if (timer_counter == 0) {
+#ifdef USE_FAULT_COUNTER
+        beacons_found_during_scan = 0;
+#endif
         nrf_pwr_mgmt_feed();
         nrf_ble_scan_start(&m_scan);
     } else if (timer_counter == 1) {
-
-        // TODO: This sould be moved somewhere else
+#ifdef USE_FAULT_COUNTER
+        fault_counter += (beacons_found_during_scan == 0 ? 1 : 0);
+        fault_counter = fault_counter % FAULT_THRESHOLD;
+#else
         fault_counter = (fault_counter + 1) % FAULT_THRESHOLD;
-
-        if (fault_counter == 0) {
+#endif
+        if (fault_counter == 0 || timestamp_counter > 60) {
             print_clear_beacon_data();
             timestamp_counter = 0;
+            fault_counter = 0;
         }
         nrf_ble_scan_stop();
     }
@@ -573,8 +584,11 @@ int main(void) {
     power_management_init();
 
     ble_stack_init();
-    scan_init();//
-    // flash_storage_init();
+    scan_init();
+
+#ifdef USE_FLASH_STORAGE
+    flash_storage_init();
+#endif
 
     init_state_machine();
 }
