@@ -108,10 +108,13 @@ typedef struct {
 } mac_address_t;
 
 typedef struct {
+    uint8_t bytes[2];
+} float8dot8_t;
+
+typedef struct {
     mac_address_t mac_address;
-    float temperature;
-    float humidity;
-    uint32_t timestamp;
+    float8dot8_t temperature;
+    float8dot8_t humidity;
 } beacon_data_t;
 
 static beacon_data_t beacon_data[BEACON_DATA_CAPACITY] = {};
@@ -139,7 +142,16 @@ static size_t timestamp_counter = 0;
 static ret_code_t handle_error(ret_code_t ret_code) {
     APP_ERROR_CHECK(ret_code);
     if (ret_code != NRF_SUCCESS) {
-        // app_uart_put('e');
+        if (ret_code == NRF_ERROR_NO_MEM) {
+            //app_uart_flush();
+            //app_uart_put('n');
+        } else if (ret_code == NRF_ERROR_INTERNAL) {
+            //app_uart_flush();
+            //app_uart_put('i');
+        } else {
+            //app_uart_flush();
+            //app_uart_put('e');
+        }
     }
 
     return ret_code;
@@ -202,6 +214,21 @@ static void uart_init(void) {
         .baud_rate    = NRF_UARTE_BAUDRATE_115200
 #endif
     };
+
+//     app_uart_comm_params_t const comm_params =
+//     {
+//         .rx_pin_no    = RX_PIN_NUMBER,
+//         .tx_pin_no    = TX_PIN_NUMBER,
+//         .rts_pin_no   = RTS_PIN_NUMBER,
+//         .cts_pin_no   = CTS_PIN_NUMBER,
+//         .flow_control = APP_UART_FLOW_CONTROL_DISABLED,
+//         .use_parity   = false,
+// #if defined (UART_PRESENT)
+//         .baud_rate    = NRF_UART_BAUDRATE_115200
+// #else
+//         .baud_rate    = NRF_UARTE_BAUDRATE_115200
+// #endif
+//     };
 
     uint32_t err_code;
     APP_UART_FIFO_INIT(
@@ -350,6 +377,20 @@ static mac_address_t extract_mac_address(ble_data_t data) {
     return mac_address;
 }
 
+// Extract temperature bytes address from beacon data
+static float8dot8_t extract_temperature_bytes(ble_data_t data) {
+    float8dot8_t temp;
+    memcpy(&temp, &data.p_data[14], 2);
+    return temp;
+}
+
+// Extract humidity bytes address from beacon data
+static float8dot8_t extract_humidity_bytes(ble_data_t data) {
+    float8dot8_t hum;
+    memcpy(&hum, &data.p_data[16], 2);
+    return hum;
+}
+
 // Check if the MAC addressed has been discovered from before. If no, add the incoming address to
 // discovered_beacons.
 static bool is_new_beacon(const ble_data_t data) {
@@ -366,10 +407,10 @@ static bool is_new_beacon(const ble_data_t data) {
 }
 
 // 8.8 fixed point byte representation to float
-static float hex_to_float(const uint8_t integer, const uint8_t decimal){
-   const float aftercomma = (float)decimal/256.0;
-   return (float)integer + aftercomma;
-}
+// static float hex_to_float(const uint8_t integer, const uint8_t decimal){
+//    const float aftercomma = (float)decimal/256.0;
+//    return (float)integer + aftercomma;
+// }
 
 //
 // static void print_temperature(const float value){
@@ -381,26 +422,26 @@ static float hex_to_float(const uint8_t integer, const uint8_t decimal){
 //      printf("\n\rHumidity: %.2f%c\r\n", value, '%');
 // }
 
-static const float extract_temperature(const ble_data_t data){
-     const float temperature_value = hex_to_float(data.p_data[14], data.p_data[15]);
-     return temperature_value;
-}
+// static const float extract_temperature(const ble_data_t data){
+//      const float temperature_value = hex_to_float(data.p_data[14], data.p_data[15]);
+//      return temperature_value;
+// }
+//
+// static const float extract_humidity(const ble_data_t data){
+//     const float humidity_value = hex_to_float(data.p_data[16], data.p_data[17]);
+//     return humidity_value;
+// }
 
-static const float extract_humidity(const ble_data_t data){
-    const float humidity_value = hex_to_float(data.p_data[16], data.p_data[17]);
-    return humidity_value;
-}
 
-
-static bool save_beacon_data(mac_address_t mac_address, float temperature, float humidity) {
+static bool save_beacon_data(mac_address_t mac_address, float8dot8_t temperature, float8dot8_t humidity) {
+    // app_uart_put('d');
     if (beacon_data_size == BEACON_DATA_CAPACITY) {
         return false;
     }
 
     memcpy(&beacon_data[beacon_data_size].mac_address, &mac_address, 6);
-    beacon_data[beacon_data_size].temperature = temperature;
-    beacon_data[beacon_data_size].humidity = humidity;
-    beacon_data[beacon_data_size].timestamp = timestamp_counter;
+    memcpy(&beacon_data[beacon_data_size].temperature, &temperature, 2);
+    memcpy(&beacon_data[beacon_data_size].humidity, &humidity, 2);
     beacon_data_size += 1;
 
     return true;
@@ -428,10 +469,10 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
     const mac_address_t mac_address = extract_mac_address(
         p_scan_evt->params.filter_match.p_adv_report->data
     );
-    const float temperature = extract_temperature(
+    const float8dot8_t temperature = extract_temperature_bytes(
         p_scan_evt->params.filter_match.p_adv_report->data
     );
-    const float humidity = extract_humidity(
+    const float8dot8_t humidity = extract_humidity_bytes(
         p_scan_evt->params.filter_match.p_adv_report->data
     );
 
@@ -447,6 +488,24 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt) {
         temperature,
         humidity
     );
+
+    // const char hex[] = "0123456789abcdef";
+    // const ble_data_t *data = &p_scan_evt->params.filter_match.p_adv_report->data;
+    //
+    // handle_error(app_uart_put('['));
+    // for (size_t i = 14; i < 24; i++) {
+    //     handle_error(app_uart_put(
+    //         hex[(data->p_data[i] >> 4) & 0xf]
+    //     ));
+    //     handle_error(app_uart_put(
+    //         hex[data->p_data[i] & 0xf]
+    //     ));
+    //     if (i != 23) {
+    //         handle_error(app_uart_put(','));
+    //     }
+    // }
+    // handle_error(app_uart_put(']'));
+
 
     // printf("\r\nrssi: %d\r\n", p_scan_evt->params.filter_match.p_adv_report->rssi);
     // printf("\n\r beacons found: %d \n\r", discovered_beacons[0]);
@@ -496,25 +555,64 @@ static void clear_beacon_data(void) {
 
 
 static void print_clear_beacon_data(void) {
-    char string_buffer[128];
-    int string_length;
+    // char string_buffer[128];
+    // int string_length;
+    // for (size_t i = 0; i < beacon_data_size; i++) {
+    //     string_length = sprintf(
+    //         string_buffer,
+    //         "[0x%02x%02x%02x%02x%02x%02x,%d,%d,%ld]",
+    //         beacon_data[i].mac_address.bytes[5],
+    //         beacon_data[i].mac_address.bytes[4],
+    //         beacon_data[i].mac_address.bytes[3],
+    //         beacon_data[i].mac_address.bytes[2],
+    //         beacon_data[i].mac_address.bytes[1],
+    //         beacon_data[i].mac_address.bytes[0],
+    //         1,
+    //         1,
+    //         timestamp_counter - beacon_data[i].timestamp
+    //     );
+    //     for (size_t j = 0; j < string_length; j++) {
+    //         app_uart_put(string_buffer[j]);
+    //     }
+    // }
+
+    const char hex[] = "0123456789abcdef";
+
     for (size_t i = 0; i < beacon_data_size; i++) {
-        string_length = sprintf(
-            string_buffer,
-            "[\"0x%02x%02x%02x%02x%02x%02x\",%0.4f,%0.4f,%ld]",
-            beacon_data[i].mac_address.bytes[5],
-            beacon_data[i].mac_address.bytes[4],
-            beacon_data[i].mac_address.bytes[3],
-            beacon_data[i].mac_address.bytes[2],
-            beacon_data[i].mac_address.bytes[1],
-            beacon_data[i].mac_address.bytes[0],
-            beacon_data[i].temperature,
-            beacon_data[i].humidity,
-            timestamp_counter - beacon_data[i].timestamp
-        );
-        for (size_t j = 0; j < string_length; j++) {
-            app_uart_put(string_buffer[j]);
+        app_uart_put('[');
+        app_uart_put('0');
+        app_uart_put('x');
+        for (size_t j = 0; j < 6; j++) {
+            app_uart_put(
+                hex[(beacon_data[i].mac_address.bytes[j] >> 4) & 0xf]
+            );
+            app_uart_put(
+                hex[beacon_data[i].mac_address.bytes[j] & 0xf]
+            );
         }
+        app_uart_put(',');
+        app_uart_put('0');
+        app_uart_put('x');
+        for (size_t j = 0; j < 2; j++) {
+            app_uart_put(
+                hex[(beacon_data[i].temperature.bytes[j] >> 4) & 0xf]
+            );
+            app_uart_put(
+                hex[beacon_data[i].temperature.bytes[j] & 0xf]
+            );
+        }
+        app_uart_put(',');
+        app_uart_put('0');
+        app_uart_put('x');
+        for (size_t j = 0; j < 2; j++) {
+            app_uart_put(
+                hex[(beacon_data[i].humidity.bytes[j] >> 4) & 0xf]
+            );
+            app_uart_put(
+                hex[beacon_data[i].humidity.bytes[j] & 0xf]
+            );
+        }
+        app_uart_put(']');
     }
 
     clear_beacon_data();
@@ -590,7 +688,7 @@ static void print_clear_beacon_data(void) {
 
 
 void timer_evt_handler(nrf_timer_event_t event, void *p_context) {
-    // app_uart_put('t');
+    //app_uart_put('t');
 
     timer_counter = (timer_counter + 1) % TIMER_SCAN_INTERVAL;
     timestamp_counter += TIMER_SECONDS;
