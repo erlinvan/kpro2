@@ -1,15 +1,14 @@
-import { Box, Button, Card, Container, Grid } from '@material-ui/core'
+import { Box, Card, Container, Grid } from '@material-ui/core'
 import React, { useContext, useEffect, useState } from 'react'
 import { IBeacondata, ITrackerinfo } from '../../Interfaces/ITrackerinfo'
 import Charts from '../Charts/Charts'
 import CardInfo from './CardInfo/CardInfo'
 import IconButton from '@material-ui/core/IconButton'
 import ArrowDownwardIcon from '@material-ui/icons/ArrowBack'
-import { Link, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import './TrackerInfo.css'
 import { Context } from '../../Context/ContextProvider'
 import HistoricTrackerMap from './HistoricTrackerMap'
-import SyncIcon from '@material-ui/icons/Sync'
 
 const Trackerinfo = () => {
     const context = useContext(Context)
@@ -138,11 +137,6 @@ const Trackerinfo = () => {
                                         />
                                     </Grid>
                                 </Card>
-                                <Link to="refresh">
-                                    <Button>
-                                        <SyncIcon />
-                                    </Button>
-                                </Link>
                             </div>
                         </Box>
                     </Container>
