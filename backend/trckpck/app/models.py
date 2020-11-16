@@ -36,18 +36,23 @@ class Package(models.Model):
         payload_list = []
 
         for item in items:
-            self.add_beacon_description(item['reported']['beacon_data'])
-            self.add_beacon_gps(item['reported']['beacon_data'])
-            self.format_beacon_values(item['reported']['beacon_data'])
-            item['reported']['beacon_data'].sort(
-                key=lambda b: b['timestamp'], reverse=False)
             payload = {
                 "id": self.tracker_id,
                 "time_stamp": item['db_timestamp'],
                 "gps": item['reported']['GPS'],
-                "company_owner": self.company_owner.company_name,
-                "beacon_data": item['reported']['beacon_data']
+                "company_owner": self.company_owner.company_name
             }
+
+            if 'beacon_data' in item['reported']:
+                self.add_beacon_description(item['reported']['beacon_data'])
+                self.add_beacon_gps(item['reported']['beacon_data'])
+                self.format_beacon_values(item['reported']['beacon_data'])
+                item['reported']['beacon_data'].sort(
+                    key=lambda b: b['timestamp'], reverse=False)
+                payload['beacon_data'] = item['reported']['beacon_data']
+            else:
+                payload['beacon_data'] = []
+
             payload_list.append(payload)
         return payload_list
 
