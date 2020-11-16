@@ -35,9 +35,11 @@ class Package(models.Model):
         payload_list = []
 
         for item in items:
+            timestamp = item['db_timestamp'].replace('T', ' ')
+            timestamp = timestamp[:timestamp.rfind('.')]
             payload = {
                 "id": self.tracker_id,
-                "time_stamp": item['db_timestamp'],
+                "time_stamp": timestamp,
                 "gps": item['reported']['GPS'],
                 "company_owner": self.company_owner.company_name
             }
@@ -60,6 +62,11 @@ class Package(models.Model):
         for beacon in beacon_data:
             beacon["temperature"] = float(beacon['temperature'])
             beacon["humidity"] = float(beacon['humidity'])
+            timestamp = beacon['timestamp']
+            if 'T' in timestamp:
+                timestamp = timestamp.replace('T', ' ')
+            timestamp = timestamp[:timestamp.rfind('.')]
+            beacon['timestamp'] = timestamp
 
     def add_beacon_gps(self, beacon_data):
         """ Add gps data to beacons """
@@ -100,7 +107,9 @@ class Package(models.Model):
         )
         items = response.get('Items', [])
         if len(items) > 0:
-            return items[0]['db_timestamp'], items[0]['reported']['GPS']
+            timestamp = items[0]['db_timestamp'].replace('T', ' ')
+            timestamp = timestamp[:timestamp.rfind('.')]
+            return timestamp, items[0]['reported']['GPS']
         return None, None
 
     def __str__(self):
