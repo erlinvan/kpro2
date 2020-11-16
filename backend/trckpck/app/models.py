@@ -27,7 +27,6 @@ class Package(models.Model):
         dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
         table = dynamodb.Table(settings.DATA_TABLE)
         response = table.query(
-            IndexName='thing_name-db_timestamp-index',
             ScanIndexForward=True,
             KeyConditionExpression=Key(
                 settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
@@ -92,10 +91,10 @@ class Package(models.Model):
         dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
         table = dynamodb.Table(settings.DATA_TABLE)
         response = table.query(
-            IndexName='thing_name-db_timestamp-index',
             ScanIndexForward=False,
             Limit=1,
             ProjectionExpression="db_timestamp, reported.GPS",
+            ReturnConsumedCapacity="INDEXES",
             KeyConditionExpression=Key(
                 settings.DATA_TABLE_TRACKER_ID).eq(self.tracker_id)
         )

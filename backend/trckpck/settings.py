@@ -141,6 +141,6 @@ STATIC_ROOT = 'static'
 
 # Project specific settings
 
-DATA_TABLE = 'test_table'
+DATA_TABLE = 'trckpck'
 DATA_TABLE_PK = 'pk'
 DATA_TABLE_TRACKER_ID = 'thing_name'
