@@ -24,6 +24,9 @@ class Command(BaseCommand):
             fjellsportuser = AppUser.objects.create(
                 username='fjellsportUser'
             )
+            glashareuser = AppUser.objects.create(
+                username='Tim'
+            )
 
             # Create companies
             apple = Company.objects.create(
@@ -34,6 +37,9 @@ class Command(BaseCommand):
             )
             fjellsport = Company.objects.create(
                 company_name='fjellsport'
+            )
+            glashare = Company.objects.create(
+                company_name='Gla-share'
             )
 
             # Create packages
@@ -59,7 +65,7 @@ class Command(BaseCommand):
                     tracker_id=f'dummy_fjellsport{i}'
                 )
             Package.objects.create(
-                company_owner=komplett,
+                company_owner=glashare,
                 tracker_id='NORBIT-tracker'
             )
 
@@ -72,15 +78,21 @@ class Command(BaseCommand):
             )
             Beacon.objects.create(
                 id='25d3a43f23ac',
-                description='Beacon description',
+                description='description for 25d3a43f23ac',
                 latitude=63.424102,
                 longitude=10.394430
             )
             Beacon.objects.create(
                 id='ac233fa4d325',
-                description='Beacon description',
+                description='description for ac233fa4d325',
                 latitude=63.524102,
                 longitude=10.294430
+            )
+            Beacon.objects.create(
+                id='28d3a43f23ac',
+                description='description for 28d3a43f23ac',
+                latitude=63.417184,
+                longitude=10.402352
             )
 
             # Add permissions
@@ -89,6 +101,7 @@ class Command(BaseCommand):
             apple.appuser_set.add(appleuser)
             komplett.appuser_set.add(komplettuser)
             fjellsport.appuser_set.add(fjellsportuser)
+            glashare.appuser_set.add(glashareuser)
 
         except Exception:
             raise Exception(
