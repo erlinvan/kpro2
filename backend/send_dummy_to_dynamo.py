@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from pprint import pprint
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('test_table')
+table = dynamodb.Table('trckpck')
 
 oslo = {'lat_range': (59.87322, 59.84012),
         'long_rang': (10.72458, 10.79055)}
@@ -67,7 +67,6 @@ def generate_random_data_point(beacon_id, city, thing_name, init_date):
     rand_date = random_date(later_than=init_date)
     lat = uniform(*city['lat_range'])
     lon = uniform(*city['long_rang'])
-    pk = str(uuid.uuid4())
     item = {
         "db_timestamp": str(rand_date).replace(" ", "T"),
         "reported": {
@@ -81,7 +80,6 @@ def generate_random_data_point(beacon_id, city, thing_name, init_date):
             "signal_strength": Decimal("-88"),
             "beacon_data": generate_random_beacon_data(beacon_id, rand_date)
         },
-        "pk": pk,
         "thing_name": thing_name
     }
     return item, rand_date
