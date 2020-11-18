@@ -80,14 +80,20 @@ const HistoricTrackerMap = ({ data }: props) => {
         }
         setPolylines(
             tempPolylines.map((x) => {
-                return (
-                    <Polyline
-                        positions={[
-                            [x[0].gps.lat, x[0].gps.lon],
-                            [x[1].gps.lat, x[1].gps.lon],
-                        ]}
-                    />
-                )
+                if (x[0].gps.lat !== '-9000' && x[1].gps.lat !== '-9000') {
+                    return (
+                        <Polyline
+                            positions={[
+                                [x[0].gps.lat, x[0].gps.lon],
+                                [x[1].gps.lat, x[1].gps.lon],
+                            ]}
+                        />
+                    )
+                }
+                // Eslint expects a return value. As no lines are to be plotted,
+                //  we return nothing and ignore the warning.
+                // eslint-disable-next-line array-callback-return
+                return
             })
         )
     }, [data])
