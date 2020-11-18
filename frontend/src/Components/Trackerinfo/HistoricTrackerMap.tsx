@@ -10,7 +10,6 @@ type props = {
 }
 
 const HistoricTrackerMap = ({ data, chosenTracker }: props) => {
-    const [markers, setMarkers] = useState<any>([])
     const greenIcon = new L.Icon({
         iconUrl:
             'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
@@ -37,79 +36,6 @@ const HistoricTrackerMap = ({ data, chosenTracker }: props) => {
         popupAnchor: [1, -34],
         shadowSize: [41, 41],
     })
-
-    useEffect(() => {
-        setMarkers([''])
-        console.log('markers:' + markers)
-        setMarkers(
-            data.map(
-                (trackerLocation: {
-                    timestamp: string
-                    time_stamp: string
-                    gps: IGPSData
-                }) =>
-                    trackerLocation.time_stamp && (
-                        <Marker
-                            key={trackerLocation.time_stamp}
-                            icon={blueIcon}
-                            position={[
-                                trackerLocation.gps.lat,
-                                trackerLocation.gps.lon,
-                            ]}
-                        >
-                            <Popup>{trackerLocation.time_stamp}</Popup>
-                        </Marker>
-                    )
-            )
-        )
-        setMarkers((markers: any) => [
-            ...markers,
-            data.map((d: any) =>
-                d.beacon_data.map(
-                    (beacon_data: any) =>
-                        beacon_data.latitude && (
-                            <Marker
-                                key={beacon_data.timestamp}
-                                icon={greenIcon}
-                                position={[
-                                    beacon_data.latitude,
-                                    beacon_data.longitude,
-                                ]}
-                            >
-                                {console.log('green: ' + beacon_data.timestamp)}
-                                <Popup>{beacon_data.timestamp}</Popup>
-                            </Marker>
-                        )
-                )
-            ),
-        ])
-        setMarkers((markers: any) => [
-            ...markers,
-            data.map((d: any) =>
-                d.beacon_data.map(
-                    (beacon_data: any) =>
-                        beacon_data.latitude &&
-                        beacon_data.timestamp &&
-                        beacon_data.timestamp.split(':')[0] ===
-                            chosenTracker.split(':')[0] && (
-                            <Marker
-                                icon={blackIcon}
-                                key={beacon_data.timestamp}
-                                position={[
-                                    beacon_data.latitude,
-                                    beacon_data.longitude,
-                                ]}
-                            >
-                                {console.log('black:' + beacon_data.timestamp)}
-                                <Popup>{beacon_data.description}</Popup>
-                            </Marker>
-                        )
-                )
-            ),
-        ])
-        // We can't add green or blue icon to dependencies as this will cause infinite rerendering.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data, chosenTracker])
 
     const [polylines, setPolylines] = useState<any>([])
 
@@ -149,7 +75,65 @@ const HistoricTrackerMap = ({ data, chosenTracker }: props) => {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                 />
-                {markers}
+                {data.map((d: any) =>
+                    d.beacon_data.map(
+                        (beacon_data: any) =>
+                            beacon_data.latitude &&
+                            beacon_data.timestamp &&
+                            beacon_data.timestamp.split(':')[0] !==
+                                chosenTracker.split(':')[0] && (
+                                <Marker
+                                    key={beacon_data.timestamp}
+                                    icon={greenIcon}
+                                    position={[
+                                        beacon_data.latitude,
+                                        beacon_data.longitude,
+                                    ]}
+                                >
+                                    <Popup>{beacon_data.timestamp}</Popup>
+                                </Marker>
+                            )
+                    )
+                )}
+                {data.map(
+                    (trackerLocation: {
+                        timestamp: string
+                        time_stamp: string
+                        gps: IGPSData
+                    }) =>
+                        trackerLocation.time_stamp && (
+                            <Marker
+                                key={trackerLocation.time_stamp}
+                                icon={blueIcon}
+                                position={[
+                                    trackerLocation.gps.lat,
+                                    trackerLocation.gps.lon,
+                                ]}
+                            >
+                                <Popup>{trackerLocation.time_stamp}</Popup>
+                            </Marker>
+                        )
+                )}
+                {data.map((d: any) =>
+                    d.beacon_data.map(
+                        (beacon_data: any) =>
+                            beacon_data.latitude &&
+                            beacon_data.timestamp &&
+                            beacon_data.timestamp.split(':')[0] ===
+                                chosenTracker.split(':')[0] && (
+                                <Marker
+                                    icon={blackIcon}
+                                    key={beacon_data.timestamp}
+                                    position={[
+                                        beacon_data.latitude,
+                                        beacon_data.longitude,
+                                    ]}
+                                >
+                                    <Popup>{beacon_data.description}</Popup>
+                                </Marker>
+                            )
+                    )
+                )}
                 {polylines}
             </Map>
         </div>
